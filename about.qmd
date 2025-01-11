@@ -1,0 +1,11 @@
+---
+title: "About"
+---
+
+Welcome to my learning journey for ISSS608 Visual Analytics and Applications.
+
+In this website, you will find my coursework prepared for this course.
+
+The reference materials used in this course are found in Prof Kam Tin Seong’s course Webpage.
+
+https://isss608-ay2024-25jan.netlify.app/
