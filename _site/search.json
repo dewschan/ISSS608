@@ -26,5 +26,54 @@
     "title": "ISSS608 -Visual Analytics and Applications Course Website",
     "section": "Words of encouragement to self",
     "text": "Words of encouragement to self"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-On_Ex_00.html",
+    "href": "Hands-on_Exe/Hands-On_Ex_00.html",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "",
+    "text": "Load tidyverse into r ennvironment by using the code chuck below.\n\npacman::p_load(tidyverse, psych)\n\nReading “read_csv” to create tibble dataframe"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_00/Hands-On_Ex_00.html",
+    "href": "Hands-on_Exe/Hands-on_Ex_00/Hands-On_Ex_00.html",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "",
+    "text": "Getting Started\nLoad tidyverse into r ennvironment by using the code chuck below.\n\npacman::p_load(tidyverse, psych)"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-On_Ex_00.html#getting-started",
+    "href": "Hands-on_Exe/Hands-On_Ex_00.html#getting-started",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "",
+    "text": "Load tidyverse into r ennvironment by using the code chuck below.\n\npacman::p_load(tidyverse, psych)\n\nReading “read_csv” to create tibble dataframe"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-On_Ex_00.html#importing-data",
+    "href": "Hands-on_Exe/Hands-On_Ex_00.html#importing-data",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "Importing data",
+    "text": "Importing data\n\nrealis_2019 &lt;- read_csv(\"data/REALIS2019.csv\")\n\n\nPivoting data\n\npopdata_fat&lt;-read_csv(\"data/PopData2019_fat.csv\")\n\n\npopdata_long &lt;- popdata_fat %&gt;%\n  pivot_longer(c(3:21),\n               names_to = \"Age Group\",\n               values_to = \"Population\")\n\n\nwrite_rds(popdata_long, \"data/rds/popdata_long.rds\")\n\n\nrealis2019_selected &lt;- realis_2019 %&gt;%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`)\nrealis2019_selected\n\n# A tibble: 19,515 × 3\n   `Project Name`           `Transacted Price ($)` `Property Type`    \n   &lt;chr&gt;                                     &lt;dbl&gt; &lt;chr&gt;              \n 1 PEIRCE VIEW                              840000 Condominium        \n 2 FLORIDA PARK                            3040000 Semi-Detached House\n 3 BULLION PARK                             860000 Condominium        \n 4 CASTLE GREEN                            1000000 Condominium        \n 5 HAPPY ESTATE                            7000000 Semi-Detached House\n 6 TEACHER'S HOUSING ESTATE                2880000 Terrace House      \n 7 THE PANORAMA                            1510000 Condominium        \n 8 THE PANORAMA                             710000 Condominium        \n 9 CHIP THYE GARDEN                        2800000 Terrace House      \n10 TEACHER'S HOUSING ESTATE                2300000 Terrace House      \n# ℹ 19,505 more rows\n\n\n\nrealis_2019_filtered &lt;- realis2019_selected %&gt;%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %&gt;% \n  filter('Type of Sales'== \"New Sales\") %&gt;%\n  filter('Unit Prfice ($ psm)'&lt;= 13000)\n\n\n\nPutting them together\n\nrealis_2019_filtered &lt;- realis_2019 %&gt;%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`) %&gt;%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %&gt;% \n  filter('Type of Sales'== \"New Sales\") %&gt;%\n  filter('Unit Prfice ($ psm)'&lt;= 13000)"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_00.html",
+    "href": "Hands-on_Exe/Hands-on_Ex_00.html",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "",
+    "text": "Load tidyverse into r environment by using the code chuck below.\n\npacman::p_load(tidyverse, psych)\n\nReading “read_csv” to create tibble dataframe"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_00.html#getting-started",
+    "href": "Hands-on_Exe/Hands-on_Ex_00.html#getting-started",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "",
+    "text": "Load tidyverse into r environment by using the code chuck below.\n\npacman::p_load(tidyverse, psych)\n\nReading “read_csv” to create tibble dataframe"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_00.html#importing-data",
+    "href": "Hands-on_Exe/Hands-on_Ex_00.html#importing-data",
+    "title": "Hands-on Exercise 00: Working with tidyverse",
+    "section": "Importing data",
+    "text": "Importing data\n\nrealis_2019 &lt;- read_csv(\"data/REALIS2019.csv\")\n\n\nPivoting data\n\npopdata_fat&lt;-read_csv(\"data/PopData2019_fat.csv\")\n\n\npopdata_long &lt;- popdata_fat %&gt;%\n  pivot_longer(c(3:21),\n               names_to = \"Age Group\",\n               values_to = \"Population\")\n\n\nwrite_rds(popdata_long, \"data/rds/popdata_long.rds\")\n\n\nrealis2019_selected &lt;- realis_2019 %&gt;%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`)\nrealis2019_selected\n\n# A tibble: 19,515 × 3\n   `Project Name`           `Transacted Price ($)` `Property Type`    \n   &lt;chr&gt;                                     &lt;dbl&gt; &lt;chr&gt;              \n 1 PEIRCE VIEW                              840000 Condominium        \n 2 FLORIDA PARK                            3040000 Semi-Detached House\n 3 BULLION PARK                             860000 Condominium        \n 4 CASTLE GREEN                            1000000 Condominium        \n 5 HAPPY ESTATE                            7000000 Semi-Detached House\n 6 TEACHER'S HOUSING ESTATE                2880000 Terrace House      \n 7 THE PANORAMA                            1510000 Condominium        \n 8 THE PANORAMA                             710000 Condominium        \n 9 CHIP THYE GARDEN                        2800000 Terrace House      \n10 TEACHER'S HOUSING ESTATE                2300000 Terrace House      \n# ℹ 19,505 more rows\n\n\n\nrealis_2019_filtered &lt;- realis2019_selected %&gt;%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %&gt;% \n  filter('Type of Sales'== \"New Sales\") %&gt;%\n  filter('Unit Prfice ($ psm)'&lt;= 13000)\n\n\n\nPutting them together\n\nrealis_2019_filtered &lt;- realis_2019 %&gt;%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`) %&gt;%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %&gt;% \n  filter('Type of Sales'== \"New Sales\") %&gt;%\n  filter('Unit Prfice ($ psm)'&lt;= 13000)"
   }
 ]

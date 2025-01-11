@@ -1,0 +1,17 @@
+{
+  "hash": "4769ee125d0e1e88fd120f0ca874f872",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands-on Exercise 00: Working with tidyverse\"\nauthor: \"Dew Stella Chan\"\ndate-modified: \"last-modified\"\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n---\n\n\n\n## Getting Started\n\nLoad tidyverse into r environment by using the code chuck below.\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(tidyverse, psych)\n```\n:::\n\n\n\nReading \"read_csv\" to create tibble dataframe\n\n## Importing data\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nrealis_2019 <- read_csv(\"data/REALIS2019.csv\")\n```\n:::\n\n\n\n### Pivoting data\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npopdata_fat<-read_csv(\"data/PopData2019_fat.csv\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\npopdata_long <- popdata_fat %>%\n  pivot_longer(c(3:21),\n               names_to = \"Age Group\",\n               values_to = \"Population\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nwrite_rds(popdata_long, \"data/rds/popdata_long.rds\")\n```\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nrealis2019_selected <- realis_2019 %>%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`)\nrealis2019_selected\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n# A tibble: 19,515 × 3\n   `Project Name`           `Transacted Price ($)` `Property Type`    \n   <chr>                                     <dbl> <chr>              \n 1 PEIRCE VIEW                              840000 Condominium        \n 2 FLORIDA PARK                            3040000 Semi-Detached House\n 3 BULLION PARK                             860000 Condominium        \n 4 CASTLE GREEN                            1000000 Condominium        \n 5 HAPPY ESTATE                            7000000 Semi-Detached House\n 6 TEACHER'S HOUSING ESTATE                2880000 Terrace House      \n 7 THE PANORAMA                            1510000 Condominium        \n 8 THE PANORAMA                             710000 Condominium        \n 9 CHIP THYE GARDEN                        2800000 Terrace House      \n10 TEACHER'S HOUSING ESTATE                2300000 Terrace House      \n# ℹ 19,505 more rows\n```\n\n\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nrealis_2019_filtered <- realis2019_selected %>%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %>% \n  filter('Type of Sales'== \"New Sales\") %>%\n  filter('Unit Prfice ($ psm)'<= 13000)\n```\n:::\n\n\n\n### Putting them together\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nrealis_2019_filtered <- realis_2019 %>%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`) %>%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %>% \n  filter('Type of Sales'== \"New Sales\") %>%\n  filter('Unit Prfice ($ psm)'<= 13000)\n```\n:::\n",
+    "supporting": [
+      "Hands-on_Ex_00_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

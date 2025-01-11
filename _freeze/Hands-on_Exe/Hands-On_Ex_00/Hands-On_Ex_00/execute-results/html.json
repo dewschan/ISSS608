@@ -1,0 +1,17 @@
+{
+  "hash": "ebfa08deafac771f36e49c60c9d7a12d",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands-on Exercise 00: Working with tidyverse\"\nauthor: \"Dew Stella Chan\"\ndate-modified: \"last-modified\"\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n---\n\n\n\n\n\nGetting Started\n\nLoad tidyverse into r ennvironment by using the code chuck below.\n\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(tidyverse, psych)\n```\n:::",
+    "supporting": [
+      "Hands-On_Ex_00_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
