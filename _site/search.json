@@ -75,5 +75,61 @@
     "title": "Hands-on Exercise 00: Working with tidyverse",
     "section": "Importing data",
     "text": "Importing data\n\nrealis_2019 &lt;- read_csv(\"data/REALIS2019.csv\")\n\n\nPivoting data\n\npopdata_fat&lt;-read_csv(\"data/PopData2019_fat.csv\")\n\n\npopdata_long &lt;- popdata_fat %&gt;%\n  pivot_longer(c(3:21),\n               names_to = \"Age Group\",\n               values_to = \"Population\")\n\n\nwrite_rds(popdata_long, \"data/rds/popdata_long.rds\")\n\n\nrealis2019_selected &lt;- realis_2019 %&gt;%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`)\nrealis2019_selected\n\n# A tibble: 19,515 × 3\n   `Project Name`           `Transacted Price ($)` `Property Type`    \n   &lt;chr&gt;                                     &lt;dbl&gt; &lt;chr&gt;              \n 1 PEIRCE VIEW                              840000 Condominium        \n 2 FLORIDA PARK                            3040000 Semi-Detached House\n 3 BULLION PARK                             860000 Condominium        \n 4 CASTLE GREEN                            1000000 Condominium        \n 5 HAPPY ESTATE                            7000000 Semi-Detached House\n 6 TEACHER'S HOUSING ESTATE                2880000 Terrace House      \n 7 THE PANORAMA                            1510000 Condominium        \n 8 THE PANORAMA                             710000 Condominium        \n 9 CHIP THYE GARDEN                        2800000 Terrace House      \n10 TEACHER'S HOUSING ESTATE                2300000 Terrace House      \n# ℹ 19,505 more rows\n\n\n\nrealis_2019_filtered &lt;- realis2019_selected %&gt;%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %&gt;% \n  filter('Type of Sales'== \"New Sales\") %&gt;%\n  filter('Unit Prfice ($ psm)'&lt;= 13000)\n\n\n\nPutting them together\n\nrealis_2019_filtered &lt;- realis_2019 %&gt;%\n  select(`Project Name`,\n  `Transacted Price ($)`,\n  `Property Type`) %&gt;%\n  filter('Property Type'== \"Condominium\"|\n  'Property Type' == \"Apartment\") %&gt;% \n  filter('Type of Sales'== \"New Sales\") %&gt;%\n  filter('Unit Prfice ($ psm)'&lt;= 13000)"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html",
+    "title": "Hands-on Exercise 01",
+    "section": "",
+    "text": "Loaded gridExtra to display the chart side by side\n\npacman:: p_load(tidyverse, gridExtra )"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#loading-of-the-required-libraries",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#loading-of-the-required-libraries",
+    "title": "Hands-on Exercise 01",
+    "section": "",
+    "text": "Loaded gridExtra to display the chart side by side\n\npacman:: p_load(tidyverse, gridExtra )"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#introducing-ggplot",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#introducing-ggplot",
+    "title": "Hands-on Exercise 01",
+    "section": "Introducing ggplot",
+    "text": "Introducing ggplot\n\nexam_data &lt;-read_csv(\"data/Exam_data.csv\")\n\n\nR Graphics VS ggplot\n\npar(mfrow = c(1, 3))\n\nHis_maths &lt;- hist(exam_data$MATHS)\n\nHis_eng &lt;- hist(exam_data$ENGLISH)\n\nHis_Sci &lt;- hist(exam_data$SCIENCE)\n\n\n\n\n\n\n\n\n\n\nGrammar of Graphics\n\nggplot(data = exam_data)\n\n\n\n\n\n\n\n\nEssential Grammatical Elements in ggplot2: Aesthetic mappings\n\nggplot(data=exam_data, \n      aes(x=MATHS))"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#essential-grammatical-elements-in-ggplot2-geom",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#essential-grammatical-elements-in-ggplot2-geom",
+    "title": "Hands-on Exercise 01",
+    "section": "Essential Grammatical Elements in ggplot2: geom",
+    "text": "Essential Grammatical Elements in ggplot2: geom\nGeometric objects are the actual data marks being ploteed on the chat. Examples include:\n\n\n\nCopied from Prof Kam webpage: https://r4va.netlify.app/chap01#working-with-theme\n\n\nA plot must have at least one geom; there is no upper limit.\nYou can add a geom to a plot using the + operator. For complete list, please refer to here.\n\nGeometric Objects: geom_bar\n\nggplot(data=exam_data,\n       aes(x=RACE)) + \n  geom_bar()\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data,\n       aes(x=MATHS)) +\n  geom_dotplot(dotsize=0.5,fill=\"red\")\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data,\n       aes(x=MATHS)) + \n  geom_dotplot(binwidth = 2.5,\n               dotsize = 0.5) +\n  scale_y_continuous(NULL, breaks = NULL) \n\n\n\n\n\n\n\n## scale_y_continuous function is used to turn off the y-axis and the breaks = NULL is required to remove the inteval.\n\n\n\nGeoetirc Objects: geom_histogram ()\nPlotting histogram with bin set to 10, instad of using the default as 30.\n\nMaths_30 &lt;- ggplot(data=exam_data, \n       aes(x=MATHS))+\n  geom_histogram()\n\nMaths_10 &lt;- ggplot(data=exam_data, \n       aes(x=MATHS))+\n  geom_histogram(binwidth=10)\n\ngrid.arrange(Maths_30, Maths_10, ncol=2)\n\n\n\n\n\n\n\n\n\n\nModifying a geometric object by changing aes ()\n\nggplot(data=exam_data,\n       aes(x=MATHS,\n           fill=GENDER)) +\n  geom_histogram(bin=20,\n                 color=\"grey30\")\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nReference:\n\n\n\nEnter \"grDevices::colors()\"under console to find out the colours. \n\n\n\n\n\nGeometric Objects: geom-density()\nUsing of geom-density() to computes and plots kernel density estimate, which is a smoothed version of the histogram.\nThe application of kernel smoothing for probability density estimation, i.e., a non-parametric method to estimate the probability density\n\nggplot(data=exam_data, \n       aes(x = MATHS)) +\n  geom_density() \n\n\n\n\n\n\n\n\nusing the same data as\n\nMaths_gender_den &lt;- ggplot(data=exam_data, \n       aes(x = MATHS, \n           colour = GENDER)) +\n  geom_density()\n\n\n\nMaths_gender_Hist &lt;-ggplot(data=exam_data,\n       aes(x=MATHS,\n           fill=GENDER)) +\n  geom_histogram(bin=20,\n                 color=\"grey30\")\n\ngrid.arrange(Maths_gender_den, Maths_gender_Hist, ncol=2)\n\n\n\n\n\n\n\n\n\n\nGeometric Objects: geom_boxplot\n\nggplot(data=exam_data, \n       aes(y = MATHS,       \n           x= GENDER)) +    \n  geom_boxplot()\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_boxplot(notch=TRUE)\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_violin()\n\n\n\n\n\n\n\n\n\n\nGeometric Objects: geom_point()\n\nggplot(data=exam_data, \n       aes(x= MATHS, \n           y=ENGLISH)) +\n  geom_point() \n\n\n\n\n\n\n\n\n\nwith_jitter&lt;- ggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_boxplot() +                    \n  geom_point(position=\"jitter\", \n             size = 0.5)\n\nno_jitter&lt;- ggplot(data=exam_data, \n       aes(y = MATHS, \n           x= GENDER)) +\n  geom_boxplot() +                    \n  geom_point(position=\"jitter\", \n             size = 0.5)\n\n\ngrid.arrange(with_jitter, no_jitter, ncol=2)"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#essential-grammatical-elements-in-ggplot2-stat",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#essential-grammatical-elements-in-ggplot2-stat",
+    "title": "Hands-on Exercise 01",
+    "section": "Essential Grammatical Elements in ggplot2: stat",
+    "text": "Essential Grammatical Elements in ggplot2: stat\nThe following Sections describe the show the statstictally transformation of data,\nThe Statistics functions statistically transform data, usually as some form of summary. For example:\nfrequency of values of a variable (bar graph) a mean a confidence limit There are two ways to use these functions: add a stat_() function and override the default geom, or add a geom_() function and override the default stat.\n\nggplot(data=exam_data, \n       aes(y = MATHS, x= GENDER)) +\n  geom_boxplot()"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#working-with-stat",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#working-with-stat",
+    "title": "Hands-on Exercise 01",
+    "section": "Working with stat()",
+    "text": "Working with stat()\n\nggplot(data=exam_data, \n       aes(y = MATHS, x= GENDER)) +\n  geom_boxplot()\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data, \n       aes(y = MATHS, x= GENDER)) +\n  geom_boxplot() +\n  stat_summary(geom = \"point\",       \n               fun = \"mean\",         \n               colour =\"red\",\n               size=4)     \n\n\n\n\n\n\n\n\n\nBest Fit curve on a scatterplot\n\nggplot(data=exam_data, \n       aes(x= MATHS, y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(size=0.5)\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data, \n       aes(x= MATHS, \n           y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(method=lm, \n              linewidth=0.5)\n\n\n\n\n\n\n\n\n\n\nEssential Grammatical Elements in ggplot2: Facets"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#facet-wrap",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#facet-wrap",
+    "title": "Hands-on Exercise 01",
+    "section": "Facet wrap",
+    "text": "Facet wrap\nfacet_wrap wraps a 1d sequence of panels into 2d. This is generally a better use of screen space than facet_grid because most displays are roughly rectangular.\nThe code chunk below plots a trellis plot using facet-wrap().\n\nggplot(data=exam_data, \n       aes(x= MATHS)) +\n  geom_histogram(bins=20) +\n    facet_wrap(~ CLASS)\n\n\n\n\n\n\n\n\n\nfacet_grid() function\n\nggplot(data=exam_data, \n       aes(x= MATHS)) +\n  geom_histogram(bins=20) +\n    facet_grid(~ CLASS)\n\n\n\n\n\n\n\n\n\n\nEssential Grammatical Elements in ggplot2: Coordinates\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar()\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar() +\n  coord_flip()\n\n\n\n\n\n\n\n\n\n\nChanging the y- and x-axis range\n\nggplot(data=exam_data, \n       aes(x= MATHS, y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(method=lm, size=0.5)\n\n\n\n\n\n\n\n\n\nggplot(data=exam_data, \n       aes(x= MATHS, y=ENGLISH)) +\n  geom_point() +\n  geom_smooth(method=lm, \n              size=0.5) +  \n  coord_cartesian(xlim=c(0,100),\n                  ylim=c(0,100))"
+  },
+  {
+    "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#essential-grammatical-elements-in-ggplot2-themes",
+    "href": "Hands-on_Exe/Hands-on_Ex_01.html#essential-grammatical-elements-in-ggplot2-themes",
+    "title": "Hands-on Exercise 01",
+    "section": "Essential Grammatical Elements in ggplot2: Themes",
+    "text": "Essential Grammatical Elements in ggplot2: Themes\nThemes control elements of the graph not related to the data. such as background colour, size of fonts, gridlines colour of labels Built-in themes include: - theme_gray() (default) - theme_bw() - theme_classic()\nA list of theme can be found at this link. Each theme element can be conceived of as either a line (e.g. x-axis), a rectangle (e.g. graph background), or text (e.g. axis title).\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar() +\n  coord_flip() +\n  theme_gray()\n\n\n\n\n\n\n\n\n\nPlotting with theme classic\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar() +\n  coord_flip() +\n  theme_classic()\n\n\n\n\n\n\n\n\n\n\nplotting with theme minimal\n\nggplot(data=exam_data, \n       aes(x=RACE)) +\n  geom_bar() +\n  coord_flip() +\n  theme_minimal() # minimal effects\n\n\n\n\n\n\n\n\n\n\nPlotting with theme bw\n\nggplot (data=exam_data, \n        aes(x=RACE))+\n  geom_bar()+\n  coord_flip() +\n  theme_bw() +\n  ggtitle(\"Distribution of Races in Exam Data\")"
   }
 ]

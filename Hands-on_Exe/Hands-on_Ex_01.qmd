@@ -1,0 +1,359 @@
+---
+title: "Hands-on Exercise 01"
+author: "Dew Stella Chan"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+---
+
+## Loading of the required libraries
+
+Loaded gridExtra to display the chart side by side
+
+```{r}
+pacman:: p_load(tidyverse, gridExtra )
+```
+
+## Introducing ggplot
+
+```{r}
+exam_data <-read_csv("data/Exam_data.csv")
+```
+
+### R Graphics VS ggplot
+
+```{r}
+par(mfrow = c(1, 3))
+
+His_maths <- hist(exam_data$MATHS)
+
+His_eng <- hist(exam_data$ENGLISH)
+
+His_Sci <- hist(exam_data$SCIENCE)
+
+```
+
+### Grammar of Graphics
+
+```{r}
+ggplot(data = exam_data)
+```
+
+Essential Grammatical Elements in ggplot2: Aesthetic mappings
+
+```{r}
+ggplot(data=exam_data, 
+      aes(x=MATHS))
+```
+
+## Essential Grammatical Elements in ggplot2: geom
+
+Geometric objects are the actual data marks being ploteed on the chat. Examples include:
+
+![Copied from Prof Kam webpage: https://r4va.netlify.app/chap01#working-with-theme](images/geom_.jpg)
+
+A plot must have at least one geom; there is no upper limit.
+
+You can add a geom to a plot using the + operator. For complete list, please refer to [here.](https://ggplot2.tidyverse.org/reference/#section-layer-geoms)
+
+### Geometric Objects: geom_bar
+
+```{r}
+ggplot(data=exam_data,
+       aes(x=RACE)) + 
+  geom_bar()
+```
+
+```{r}
+ggplot(data=exam_data,
+       aes(x=MATHS)) +
+  geom_dotplot(dotsize=0.5,fill="red")
+```
+
+```{r}
+ggplot(data=exam_data,
+       aes(x=MATHS)) + 
+  geom_dotplot(binwidth = 2.5,
+               dotsize = 0.5) +
+  scale_y_continuous(NULL, breaks = NULL) 
+## scale_y_continuous function is used to turn off the y-axis and the breaks = NULL is required to remove the inteval.
+```
+
+### Geoetirc Objects: geom_histogram ()
+
+Plotting histogram with bin set to 10, instad of using the default as 30.
+
+```{r}
+
+Maths_30 <- ggplot(data=exam_data, 
+       aes(x=MATHS))+
+  geom_histogram()
+
+Maths_10 <- ggplot(data=exam_data, 
+       aes(x=MATHS))+
+  geom_histogram(binwidth=10)
+
+grid.arrange(Maths_30, Maths_10, ncol=2)
+
+```
+
+### Modifying a geometric object by changing aes ()
+
+```{r}
+ggplot(data=exam_data,
+       aes(x=MATHS,
+           fill=GENDER)) +
+  geom_histogram(bin=20,
+                 color="grey30")
+```
+
+::: callout-note
+#### Reference:
+
+```         
+Enter "grDevices::colors()"under console to find out the colours. 
+
+```
+:::
+
+
+### Geometric Objects: geom-density()
+
+Using of geom-density() to computes and plots kernel density estimate, which is a smoothed version of the histogram.
+
+The application of kernel smoothing for probability density estimation, i.e., a non-parametric method to estimate the probability density
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x = MATHS)) +
+  geom_density() 
+```
+
+using the same data as 
+```{r}
+Maths_gender_den <- ggplot(data=exam_data, 
+       aes(x = MATHS, 
+           colour = GENDER)) +
+  geom_density()
+
+
+
+Maths_gender_Hist <-ggplot(data=exam_data,
+       aes(x=MATHS,
+           fill=GENDER)) +
+  geom_histogram(bin=20,
+                 color="grey30")
+
+grid.arrange(Maths_gender_den, Maths_gender_Hist, ncol=2)
+```
+
+### Geometric Objects: geom_boxplot 
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS,       
+           x= GENDER)) +    
+  geom_boxplot()
+```
+
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_boxplot(notch=TRUE)
+```
+
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_violin()
+```
+### Geometric Objects: geom_point()
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           y=ENGLISH)) +
+  geom_point() 
+```
+```{r}
+with_jitter<- ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_boxplot() +                    
+  geom_point(position="jitter", 
+             size = 0.5)
+
+no_jitter<- ggplot(data=exam_data, 
+       aes(y = MATHS, 
+           x= GENDER)) +
+  geom_boxplot() +                    
+  geom_point(position="jitter", 
+             size = 0.5)
+
+
+grid.arrange(with_jitter, no_jitter, ncol=2)
+
+```
+
+## Essential Grammatical Elements in ggplot2: stat
+
+The following Sections describe the show the statstictally transformation of data, 
+
+The Statistics functions statistically transform data, usually as some form of summary. For example:
+
+frequency of values of a variable (bar graph)
+a mean
+a confidence limit
+There are two ways to use these functions:
+add a stat_() function and override the default geom, or
+add a geom_() function and override the default stat.
+
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, x= GENDER)) +
+  geom_boxplot()
+```
+
+
+## Working with stat()
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, x= GENDER)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data=exam_data, 
+       aes(y = MATHS, x= GENDER)) +
+  geom_boxplot() +
+  stat_summary(geom = "point",       
+               fun = "mean",         
+               colour ="red",
+               size=4)     
+```
+### Best Fit curve on a scatterplot
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(size=0.5)
+```
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, 
+           y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, 
+              linewidth=0.5)
+```
+
+
+### Essential Grammatical Elements in ggplot2: Facets
+
+
+## Facet wrap
+facet_wrap wraps a 1d sequence of panels into 2d. This is generally a better use of screen space than facet_grid because most displays are roughly rectangular.
+
+The code chunk below plots a trellis plot using facet-wrap().
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS)) +
+  geom_histogram(bins=20) +
+    facet_wrap(~ CLASS)
+```
+### facet_grid() function
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS)) +
+  geom_histogram(bins=20) +
+    facet_grid(~ CLASS)
+```
+
+
+### Essential Grammatical Elements in ggplot2: Coordinates
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar()
+```
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip()
+```
+### Changing the y- and x-axis range
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, size=0.5)
+```
+```{r}
+ggplot(data=exam_data, 
+       aes(x= MATHS, y=ENGLISH)) +
+  geom_point() +
+  geom_smooth(method=lm, 
+              size=0.5) +  
+  coord_cartesian(xlim=c(0,100),
+                  ylim=c(0,100))
+```
+
+## Essential Grammatical Elements in ggplot2: Themes
+
+Themes control elements of the graph not related to the data. such as background colour, size of fonts, gridlines colour of labels
+Built-in themes include: - theme_gray() (default) - theme_bw() - theme_classic()
+
+A list of theme can be found at this link. Each theme element can be conceived of as either a line (e.g. x-axis), a rectangle (e.g. graph background), or text (e.g. axis title).
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip() +
+  theme_gray()
+```
+
+#### Plotting with theme classic
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip() +
+  theme_classic()
+```
+
+### plotting with theme minimal
+
+```{r}
+ggplot(data=exam_data, 
+       aes(x=RACE)) +
+  geom_bar() +
+  coord_flip() +
+  theme_minimal() # minimal effects
+```
+
+### Plotting with theme bw
+
+```{r}
+ggplot (data=exam_data, 
+        aes(x=RACE))+
+  geom_bar()+
+  coord_flip() +
+  theme_bw() +
+  ggtitle("Distribution of Races in Exam Data")
+```
