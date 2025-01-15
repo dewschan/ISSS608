@@ -81,14 +81,14 @@
     "href": "Hands-on_Exe/Hands-on_Ex_01.html",
     "title": "Hands-on Exercise 01",
     "section": "",
-    "text": "Loaded gridExtra to display the chart side by side\n\npacman:: p_load(tidyverse, gridExtra )"
+    "text": "Loaded gridExtra library to display the charts side by side\n\npacman:: p_load(tidyverse, gridExtra )"
   },
   {
     "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#loading-of-the-required-libraries",
     "href": "Hands-on_Exe/Hands-on_Ex_01.html#loading-of-the-required-libraries",
     "title": "Hands-on Exercise 01",
     "section": "",
-    "text": "Loaded gridExtra to display the chart side by side\n\npacman:: p_load(tidyverse, gridExtra )"
+    "text": "Loaded gridExtra library to display the charts side by side\n\npacman:: p_load(tidyverse, gridExtra )"
   },
   {
     "objectID": "Hands-on_Exe/Hands-on_Ex_01.html#introducing-ggplot",

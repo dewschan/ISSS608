@@ -11,7 +11,7 @@ execute:
 
 ## Loading of the required libraries
 
-Loaded gridExtra to display the chart side by side
+Loaded gridExtra library to display the charts side by side
 
 ```{r}
 pacman:: p_load(tidyverse, gridExtra )
