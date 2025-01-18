@@ -1,0 +1,15 @@
+{
+  "hash": "a14d9d58d5e3574ae4371504a7165c07",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In-Class Exercise 01\"\nauthor: \"Dew Stella Chan\"\ndate-modified: \"last-modified\"\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n---\n\n\n\n\n## Loading of Libraries\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman:: p_load (tidyverse)\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
