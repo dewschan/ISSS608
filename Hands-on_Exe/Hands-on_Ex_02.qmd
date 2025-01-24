@@ -12,13 +12,24 @@ execute:
 
 ## Loading of the required libraries
 
+In this hands-one exercise, 6 R packages are used. Beside tidyverse which were used in Hands-on Exercise 1 and dplyr which is used to transform the dataframe to create meaningful label. The following packages are introduced.
+
+-   ggrepel: an R package provides geoms for ggplot2 to repel overlapping text labels.
+
+-   ggthemes: an R package provides some extra themes, geoms, and scales for ‘ggplot2’.
+
+-   hrbrthemes: an R package provides typography-centric themes and theme components for ggplot2.
+
+-   patchwork: an R package for preparing composite figure created using ggplot2.
+
 ```{r}
 pacman::p_load(ggrepel, patchwork, 
                ggthemes, hrbrthemes,
-               tidyverse, gridExtra) 
+               tidyverse, gridExtra, dplyr 
+               ) 
 ```
 
-### loading of exam data
+### Loading of exam data
 
 ```{r}
 exam_data <- read_csv("data/Exam_data.csv")
@@ -41,6 +52,46 @@ ggplot(data=exam_data,
   ggtitle("English scores versus Maths scores for Primary 3")
 ```
 
+### Data preparation for label and data to be plotted.
+
+To make the above chart more meaningful, the following codes is to prepare the label so that the target audience of the chart could easily view the student IDs and the gender who scored higher for English and Chinese.
+
+In this scenario, we are interested in students who scored above 80 for both subjects.
+
+```{r}
+exam_data <- exam_data %>%
+  mutate(ID_label=gsub("Student", "s_",ID),
+         Gender_label= recode(GENDER, "Female"="F", "Male" ="M"),
+         Label=str_c(ID_label,Gender_label,sep=""))
+
+filtered_data <- exam_data %>%
+  filter(MATHS > 80, ENGLISH > 80)
+
+```
+
+```{r}
+
+ggplot(data = filtered_data, 
+       aes(x = MATHS, 
+           y = ENGLISH)) +
+  geom_point() +
+  geom_smooth(method = lm, 
+              size = 1) +  
+  geom_label(aes(label = Label, fill = GENDER,), 
+             hjust = 0.1, 
+             vjust = -0.1) +
+  scale_fill_manual(values = c("Female" = "pink", "Male" = "lightblue")) +
+  coord_cartesian(xlim = c(80, 100),
+                  ylim = c(80, 100)) +
+  ggtitle("English scores versus Maths scores for Primary 3 for students above 80 ")+
+  theme(legend.position = "bottom")
+
+```
+
+### Working with ggrepel
+
+Plotting of the best fit line with outliners being labelled.
+
 ```{r}
 ggplot(data=exam_data, 
        aes(x= MATHS, 
@@ -59,6 +110,8 @@ ggplot(data=exam_data,
 
 ggplot2 comes with eight built-in themes, they are: theme_gray(), theme_bw(), theme_classic(), theme_dark(), theme_light(), theme_linedraw(), theme_minimal(), and theme_void().
 
+### theme_gray()
+
 ```{r}
 ggplot(data=exam_data, 
              aes(x = MATHS)) +
@@ -69,6 +122,8 @@ ggplot(data=exam_data,
   theme_gray() +
   ggtitle("Distribution of Maths scores") 
 ```
+
+### Working with ggtheme package: theme_economist()
 
 ```{r}
 ggplot(data=exam_data, 
@@ -107,7 +162,13 @@ ggplot(data=exam_data,
               grid = "Y")
 ```
 
-###Beyond Single Graph
+## Beyond Single Graph
+
+When crafting the data story, it is common to represent the different dimensions of the data using multiple graphs and displaying them on the same page/slide to better illustrate and support the trends and observations.
+
+This can be done using using function such as grid.arrange of the gridEXtra package (as used in [Hands-on Exercise 1](https://isss608-dewstella.netlify.app/hands-on_exe/hands-on_ex_01)) and plot_grid() of cowplot package.
+
+In this section, we will be using ggplot2 extension called pactchwork which is designed for combining seperate ggplot charts into one single image.
 
 ```{r}
 p1 <- ggplot(data=exam_data, 
@@ -144,16 +205,17 @@ p3 <- ggplot(data=exam_data,
 ```
 
 
+### Use of grid.arrange in gridExtra pacakge
 ```{r}
 grid.arrange(p1,p2, p3, ncol=3)
 ```
 
-
-### Creating Composite Graphics: pathwork methods 
+### Creating Composite Graphics: pathwork methods
 
 ```{r}
 p1 + p2
 ```
+
 ### Combining three ggplot2 graphs
 
 ```{r}
@@ -169,11 +231,22 @@ p3 + inset_element(p2,
                    right = 0.5, 
                    top = 1)
 ```
+
+
+The inset element can be modfiy to cover the bottom too by adjusting the numbers in  the function. But it is important to take note that the insert should not cover any points of the element.  
+```{r}
+p3 + inset_element(p2, 
+                   left = 0.02, 
+                   bottom = 0.01, 
+                   right = 0.5, 
+                   top = 0.3)
+```
+
+
 ### Creating a composite figure by using patchwork and ggtheme
 
+Figure below is created by combining patchwork and theme_economist() of ggthemes package discussed earlier.
 ```{r}
 patchwork <- (p1 / p2) | p3
 patchwork & theme_economist()
 ```
-
-
