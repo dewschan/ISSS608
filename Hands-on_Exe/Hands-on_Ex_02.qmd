@@ -204,8 +204,8 @@ p3 <- ggplot(data=exam_data,
   ggtitle("English scores versus Maths scores for Primary 3")
 ```
 
+### Use of grid.arrange in gridExtra package
 
-### Use of grid.arrange in gridExtra pacakge
 ```{r}
 grid.arrange(p1,p2, p3, ncol=3)
 ```
@@ -232,8 +232,8 @@ p3 + inset_element(p2,
                    top = 1)
 ```
 
+The inset element can be modified to be at the bottom too by adjusting the numbers in the function. But it is important to take note that the insert chart should not cover any points of the graph.
 
-The inset element can be modfiy to cover the bottom too by adjusting the numbers in  the function. But it is important to take note that the insert should not cover any points of the element.  
 ```{r}
 p3 + inset_element(p2, 
                    left = 0.02, 
@@ -242,10 +242,10 @@ p3 + inset_element(p2,
                    top = 0.3)
 ```
 
-
 ### Creating a composite figure by using patchwork and ggtheme
 
 Figure below is created by combining patchwork and theme_economist() of ggthemes package discussed earlier.
+
 ```{r}
 patchwork <- (p1 / p2) | p3
 patchwork & theme_economist()

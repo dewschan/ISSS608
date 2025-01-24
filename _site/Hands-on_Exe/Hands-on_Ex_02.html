@@ -208,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#beyond-single-graph" id="toc-beyond-single-graph" class="nav-link" data-scroll-target="#beyond-single-graph">Beyond Single Graph</a>
   <ul class="collapse">
-  <li><a href="#use-of-grid.arrange-in-gridextra-pacakge" id="toc-use-of-grid.arrange-in-gridextra-pacakge" class="nav-link" data-scroll-target="#use-of-grid.arrange-in-gridextra-pacakge">Use of grid.arrange in gridExtra pacakge</a></li>
+  <li><a href="#use-of-grid.arrange-in-gridextra-package" id="toc-use-of-grid.arrange-in-gridextra-package" class="nav-link" data-scroll-target="#use-of-grid.arrange-in-gridextra-package">Use of grid.arrange in gridExtra package</a></li>
   <li><a href="#creating-composite-graphics-pathwork-methods" id="toc-creating-composite-graphics-pathwork-methods" class="nav-link" data-scroll-target="#creating-composite-graphics-pathwork-methods">Creating Composite Graphics: pathwork methods</a></li>
   <li><a href="#combining-three-ggplot2-graphs" id="toc-combining-three-ggplot2-graphs" class="nav-link" data-scroll-target="#combining-three-ggplot2-graphs">Combining three ggplot2 graphs</a></li>
   <li><a href="#creating-figure-with-insert" id="toc-creating-figure-with-insert" class="nav-link" data-scroll-target="#creating-figure-with-insert">Creating figure with insert</a></li>
@@ -483,8 +483,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">100</span>)) <span class="sc">+</span></span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"English scores versus Maths scores for Primary 3"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="use-of-grid.arrange-in-gridextra-pacakge" class="level3">
-<h3 class="anchored" data-anchor-id="use-of-grid.arrange-in-gridextra-pacakge">Use of grid.arrange in gridExtra pacakge</h3>
+<section id="use-of-grid.arrange-in-gridextra-package" class="level3">
+<h3 class="anchored" data-anchor-id="use-of-grid.arrange-in-gridextra-package">Use of grid.arrange in gridExtra package</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(p1,p2, p3, <span class="at">ncol=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -538,7 +538,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The inset element can be modfiy to cover the bottom too by adjusting the numbers in the function. But it is important to take note that the insert should not cover any points of the element.</p>
+<p>The inset element can be modified to be at the bottom too by adjusting the numbers in the function. But it is important to take note that the insert chart should not cover any points of the graph.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>p3 <span class="sc">+</span> <span class="fu">inset_element</span>(p2, </span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">left =</span> <span class="fl">0.02</span>, </span>
