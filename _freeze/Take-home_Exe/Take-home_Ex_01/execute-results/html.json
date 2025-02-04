@@ -1,0 +1,15 @@
+{
+  "hash": "995425f983006ad37b76531ec5b2533e",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Take-Home Exercise 01\"\nauthor: \"Dew Stella Chan\"\ndate: \"2025-02-01\"\ndate-modified: \"last-modified\"\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n---\n\n\n\n\n# Take Home Exercise 01\n\n\n## Tasks Required. \n\n\n## Loading of Packages\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(ggdist, ggridges, ggthemes,\n               colorspace, tidyverse, gridExtra)\n```\n:::\n\n\n\n## Loading of Data\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nheart <- read_csv(\"data/Ex01/japan_heart_attack_dataset.csv\")\n```\n:::",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

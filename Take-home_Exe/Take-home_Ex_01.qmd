@@ -9,3 +9,22 @@ execute:
   warning: false
   freeze: true
 ---
+
+
+# Take Home Exercise 01
+
+
+## Tasks Required. 
+
+
+## Loading of Packages
+```{r}
+pacman::p_load(ggdist, ggridges, ggthemes,
+               colorspace, tidyverse, gridExtra)
+```
+
+## Loading of Data
+
+```{r}
+heart <- read_csv("data/Ex01/japan_heart_attack_dataset.csv")
+```
