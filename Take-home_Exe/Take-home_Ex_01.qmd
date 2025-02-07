@@ -28,3 +28,86 @@ pacman::p_load(ggdist, ggridges, ggthemes,
 ```{r}
 heart <- read_csv("data/Ex01/japan_heart_attack_dataset.csv")
 ```
+
+### Data Preparation:
+
+```{r}
+HA <- heart %>% select (1:17)
+```
+
+```{r}
+summary(HA)
+```
+
+```{r}
+#Assuming HA is your tibble data frame
+# Select only the categorical columns (factor or character)
+categorical_columns <- HA %>% select(where(~is.character(.x) || is.factor(.x)))
+
+# Count the number of occurrences for each unique value in each categorical column
+count_occurrences <- categorical_columns %>%
+  pivot_longer(everything(), names_to = "Category", values_to = "Value") %>%
+  count(Category, Value)
+
+# Print the result
+print(count_occurrences)
+```
+
+
+```{r}
+# Create bar plots for each categorical field
+bar_plots <- count_occurrences %>%
+  ggplot(aes(x = Value, y = n, fill = Category)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ Category, scales = "free") +
+  theme_minimal() +
+  labs(title = "Counts of Unique Values in Categorical Fields",
+       x = "Unique Values",
+       y = "Count")
+
+# Print the bar plots
+print(bar_plots)
+```
+
+
+## visualising continuous data
+
+```{r}
+# Select only the continuous columns (numeric)
+continuous_columns <- HA %>% select(where(is.numeric))
+
+# Create histograms for each continuous field
+histograms <- continuous_columns %>%
+  pivot_longer(everything(), names_to = "Field", values_to = "Value") %>%
+  ggplot(aes(x = Value, fill = Field)) +
+  geom_histogram(binwidth = 30, alpha = 0.7) +
+  facet_wrap(~ Field, scales = "free") +
+  theme_minimal() +
+  labs(title = "Histograms of Continuous Fields",
+       x = "Value",
+       y = "Frequency")
+
+# Print the histograms
+print(histograms)
+```
+
+
+```{r}
+continuous_columns <- HA %>% select(where(is.numeric))
+# Create individual boxplots for each continuous field
+individual_boxplots <- continuous_columns %>%
+  pivot_longer(everything(), names_to = "Field", values_to = "Value") %>%
+  ggplot(aes(x = Field, y = Value, fill = Field)) +
+  geom_boxplot() +
+  facet_wrap(~ Field, scales = "free") +
+  theme_minimal() +
+  labs(title = "Boxplots of Continuous Fields",
+       x = "Field",
+       y = "Value")
+
+# Print the individual boxplots
+print(individual_boxplots)
+```
+
+
+
