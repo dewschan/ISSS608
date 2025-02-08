@@ -299,5 +299,12 @@
     "title": "Take-Home Exercise 01",
     "section": "",
     "text": "# Select only the continuous columns (numeric)\ncontinuous_columns &lt;- HA %&gt;% select(where(is.numeric))\n\n# Create histograms for each continuous field\nhistograms &lt;- continuous_columns %&gt;%\n  pivot_longer(everything(), names_to = \"Field\", values_to = \"Value\") %&gt;%\n  ggplot(aes(x = Value, fill = Field)) +\n  geom_histogram(binwidth = 30, alpha = 0.7) +\n  facet_wrap(~ Field, scales = \"free\") +\n  theme_minimal() +\n  labs(title = \"Histograms of Continuous Fields\",\n       x = \"Value\",\n       y = \"Frequency\")\n\n# Print the histograms\nprint(histograms)\n\n\n\n\n\n\n\n\n\ncontinuous_columns &lt;- HA %&gt;% select(where(is.numeric))\n# Create individual boxplots for each continuous field\nindividual_boxplots &lt;- continuous_columns %&gt;%\n  pivot_longer(everything(), names_to = \"Field\", values_to = \"Value\") %&gt;%\n  ggplot(aes(x = Field, y = Value, fill = Field)) +\n  geom_boxplot() +\n  facet_wrap(~ Field, scales = \"free\") +\n  theme_minimal() +\n  labs(title = \"Boxplots of Continuous Fields\",\n       x = \"Field\",\n       y = \"Value\")\n\n# Print the individual boxplots\nprint(individual_boxplots)"
+  },
+  {
+    "objectID": "In-class_Exe/In-class_Ex04.html",
+    "href": "In-class_Exe/In-class_Ex04.html",
+    "title": "In-Class Ex 04",
+    "section": "",
+    "text": "pacman::p_load(haven, SmartEDA, tidyverse, tidymodels)\n\n\nexam &lt;- read_csv(\"data/Exam_data.csv\")\n\n\nggplot(data=exam, \n       aes(y=ENGLISH,\n           x=CLASS)) +\n  geom_boxplot()"
   }
 ]

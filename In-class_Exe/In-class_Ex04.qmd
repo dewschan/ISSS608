@@ -1,0 +1,31 @@
+---
+title: "In-Class Ex 04"
+author: "Dew Stella Chan"
+date: "2025-02-08"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+---
+
+
+
+```{r}
+pacman::p_load(haven, SmartEDA, tidyverse, tidymodels)
+```
+
+```{r}
+exam <- read_csv("data/Exam_data.csv")
+```
+
+```{r}
+ggplot(data=exam, 
+       aes(y=ENGLISH,
+           x=CLASS)) +
+  geom_boxplot()
+```
+
+
+
