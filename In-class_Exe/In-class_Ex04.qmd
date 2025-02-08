@@ -13,7 +13,8 @@ execute:
 
 
 ```{r}
-pacman::p_load(haven, SmartEDA, tidyverse, tidymodels)
+pacman::p_load(haven, SmartEDA, tidyverse, tidymodels, ggdist, ggridges, ggthemes,
+               colorspace, gridExtra, ggstatsplot)
 ```
 
 ```{r}
@@ -22,9 +23,75 @@ exam <- read_csv("data/Exam_data.csv")
 
 ```{r}
 ggplot(data=exam, 
-       aes(y=ENGLISH,
-           x=CLASS)) +
+       aes(y=CLASS,
+           x=ENGLISH)) +
   geom_boxplot()
+```
+```{r}
+ggplot(exam, 
+       aes(x = ENGLISH, 
+           y = CLASS)) +
+  #this part to create in ridgelines
+  geom_density_ridges(
+    scale = 3,
+    rel_min_height = 0.01,
+    bandwidth = 3.4,
+    fill = lighten("#7097BB", .3),
+    color = "white"
+  ) +
+  scale_x_continuous(
+    name = "English grades",
+    expand = c(0, 0)
+    ) +
+  ### x axis continous data
+  scale_y_discrete(name = NULL, expand = expansion(add = c(0.2, 2.6))) +
+  theme_ridges()
+```
+### rain drop plot.
+
+The probabilty density plot will smooth out the the curve and the dot plot will be able to show the actual data points. 
+
+```{r}
+ggplot(exam, 
+       aes(x = RACE, 
+           y = ENGLISH)) +
+  stat_halfeye(adjust = 0.5,
+               justification = -0.2,
+               .width = 0,
+               point_colour = NA) +
+  geom_boxplot(width = .20,
+               outlier.shape = NA) +
+  stat_dots(side = "left", 
+            justification = 1.2, 
+            binwidth = .5,
+            dotsize = 2)
+```
+
+
+
+```{r}
+ggbetweenstats(
+  data = exam,
+  x = GENDER, 
+  y = MATHS,
+  type = "np", #np is non parametric 
+  messages = FALSE
+)
+```
+
+
+```{r}
+ggbetweenstats(
+  data = exam,
+  x = RACE, 
+  y = ENGLISH,
+  type = "p",
+  mean.ci = TRUE, 
+  pairwise.comparisons = TRUE, 
+  pairwise.display = "s",
+  p.adjust.method = "fdr",
+  messages = FALSE
+)
 ```
 
 
