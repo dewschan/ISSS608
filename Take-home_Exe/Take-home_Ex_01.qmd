@@ -10,94 +10,180 @@ execute:
   freeze: true
 ---
 
-
 # Take Home Exercise 01
 
+This quota document shows the visual analytics conducted for the Take Home Exercise 01, The data set chosen is the [Heart Attack in Japan Youth Vs Adult](https://www.kaggle.com/code/radhikaarajdev/heart-attack-risk-youth-vs-adults-in-japan) from Kaggle.
 
-## Tasks Required. 
+## Tasks Required
 
+The main task is to develop graphical visuals for a media company on an article for the possible factor leading to heart attack trend in Japanese Youth.
+
+The plan is to carry out exploratory and confirmatory data analysis to confirm the observed trend before doing up the visuals required for the graphic.
 
 ## Loading of Packages
+
+The following code chunk indicate the list of packages used for this Take Home Exercise 01
+
 ```{r}
-pacman::p_load(ggdist, ggridges, ggthemes,
-               colorspace, tidyverse, gridExtra)
+pacman::p_load(haven, SmartEDA, tidyverse, tidymodels, ggdist, ggridges, ggthemes,
+               colorspace, gridExtra, ggstatsplot, GGally, 
+               readxl, performance, parameters, see)
 ```
 
 ## Loading of Data
+
+As the data is in csv format, the data is loaded using read_csv function.
 
 ```{r}
 heart <- read_csv("data/Ex01/japan_heart_attack_dataset.csv")
 ```
 
-### Data Preparation:
+### Data Preparation
+
+summary and head functions are used to view and examin the data type before further processing is carried out.
+
+```{r}
+summary(heart)
+
+head (heart)
+```
+
+### Check for missing values.
+
+```{r}
+colSums(is.na(heart))
+```
+As the metadata did not specify the data is  of the extra columns hence we will not be able the data in the "Extra_column 1 to 15"
+
+The first step of data preparation is to remove them first.
 
 ```{r}
 HA <- heart %>% select (1:17)
 ```
 
+After removing the Extra columns, we continue by examining the data using the summary and head (HA) function.
+
 ```{r}
 summary(HA)
+
+head (HA)
 ```
+
+It was observed that the data consist two main types: namely continous and categorical. The following steps we will examine the distibution of the each type of data in details.
+
+### Visualising of categorical Data
+
+The aim of this task is to examine if there are any trends in categorical data in the occurance of heart attack in Japnaese population.
+
+The code below is extract our the categorical data and summarise into the occurance of heart attack
 
 ```{r}
-#Assuming HA is your tibble data frame
-# Select only the categorical columns (factor or character)
 categorical_columns <- HA %>% select(where(~is.character(.x) || is.factor(.x)))
 
-# Count the number of occurrences for each unique value in each categorical column
 count_occurrences <- categorical_columns %>%
-  pivot_longer(everything(), names_to = "Category", values_to = "Value") %>%
-  count(Category, Value)
+  pivot_longer(-Heart_Attack_Occurrence, names_to = "Category", values_to = "Value") %>%
+  group_by(Category, Value, Heart_Attack_Occurrence) %>%
+  summarise(Occurrences = n(), .groups = 'drop')
 
-# Print the result
 print(count_occurrences)
 ```
-
 
 ```{r}
 # Create bar plots for each categorical field
 bar_plots <- count_occurrences %>%
-  ggplot(aes(x = Value, y = n, fill = Category)) +
-  geom_bar(stat = "identity") +
+  ggplot(aes(x = Value, y = Occurrences, fill = Heart_Attack_Occurrence)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
   facet_wrap(~ Category, scales = "free") +
   theme_minimal() +
   labs(title = "Counts of Unique Values in Categorical Fields",
        x = "Unique Values",
-       y = "Count")
+       y = "Count") 
 
 # Print the bar plots
 print(bar_plots)
 ```
 
+#### closer examination of categorical trend for those with heart attack
+
+```{r}
+count_occurrences_yes <- filter(count_occurrences, Heart_Attack_Occurrence == "Yes")
+
+# Create bar plots for each categorical field
+bar_plots <- count_occurrences_yes %>%
+  ggplot(aes(x = Value, y = Occurrences, )) + 
+  geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
+  facet_wrap(~ Category, scales = "free") +
+  theme_minimal() +
+  labs(title = "Counts of Unique Values in Categorical Fields",
+       x = "Unique Values",
+       y = "Count") 
+
+# Print the bar plots
+print(bar_plots)
+```
+
+```{r}
+#| fig-width: 24 #to widen the space
+#| fig-height: 24 #to lengthen the graph
+pm <- ggpairs(HA, columns = 1:17, ggplot2::aes(colour = Heart_Attack_Occurrence ))
+print (pm)
+```
 
 ## visualising continuous data
 
 ```{r}
 # Select only the continuous columns (numeric)
-continuous_columns <- HA %>% select(where(is.numeric))
+continuous_columns <- HA %>% select(where(is.numeric), Heart_Attack_Occurrence)
 
-# Create histograms for each continuous field
-histograms <- continuous_columns %>%
-  pivot_longer(everything(), names_to = "Field", values_to = "Value") %>%
-  ggplot(aes(x = Value, fill = Field)) +
-  geom_histogram(binwidth = 30, alpha = 0.7) +
-  facet_wrap(~ Field, scales = "free") +
-  theme_minimal() +
-  labs(title = "Histograms of Continuous Fields",
-       x = "Value",
-       y = "Frequency")
+
+b<-continuous_columns %>%
+  pivot_longer(cols = -Heart_Attack_Occurrence, names_to = "Field", values_to = "Value")
+               
+              
+```
+
+```{R}
+# Create histograms with density plots for continuous variables
+histograms <- ggplot(b, aes(x = Value, fill = Heart_Attack_Occurrence )) + 
+  geom_histogram(binwidth = 1, alpha = 0.8) + 
+  theme_minimal() + 
+  labs(title = "Histograms of Continuous Fields", x = "Value", y = "Frequency")+
+  facet_wrap(~ Field, scales = "free") 
 
 # Print the histograms
 print(histograms)
 ```
 
+### visualising using density plot
 
 ```{r}
-continuous_columns <- HA %>% select(where(is.numeric))
+# Adding density plot
+ggplot(HA, aes(x = Stress_Levels)) +
+  geom_histogram(aes(y = ..density..), binwidth = 1, fill = "blue", alpha = 0.5) +
+  geom_density(color = "red", size = 1) +
+  labs(title = "Histogram and Density Plot of Stress Levels", x = "Stress Levels", y = "Density")
+```
+
+```{r}
+
+ggplot(HA, aes(x = Stress_Levels, fill = Heart_Attack_Occurrence)) +  # Map fill to Heart_Attack_Occurrence
+  geom_histogram(aes(y = ..density..), binwidth = 1, alpha = 0.5, position = "identity") +  # Adjust position for overlap
+  geom_density(color = "red", size = 1, alpha = 0.3) +  # Density plot with transparency
+  labs(title = "Histogram and Density Plot of Stress Levels",
+       x = "Stress Levels",
+       y = "Density") +
+  theme_minimal(base_size = 14) +  # Improve overall theme and font size
+  scale_fill_brewer(palette = "Set2", name = "Heart Attack Occurrence") +  # Use a color palette for filling
+  theme(legend.position = "top")  # Position the legend at the top
+
+
+```
+
+```{r}
+
 # Create individual boxplots for each continuous field
-individual_boxplots <- continuous_columns %>%
-  pivot_longer(everything(), names_to = "Field", values_to = "Value") %>%
-  ggplot(aes(x = Field, y = Value, fill = Field)) +
+individual_boxplots <- 
+  ggplot(b, aes(x = Field, y = Value, fill = Heart_Attack_Occurrence)) +
   geom_boxplot() +
   facet_wrap(~ Field, scales = "free") +
   theme_minimal() +
@@ -109,5 +195,142 @@ individual_boxplots <- continuous_columns %>%
 print(individual_boxplots)
 ```
 
+```{r}
+HA_Yes <- filter(HA, Heart_Attack_Occurrence == "Yes")
+```
+
+```{r}
+HA_No <- filter(HA, Heart_Attack_Occurrence == "No")
+```
+
+```{r}
+summary(HA_Yes)
+```
+
+```{r}
+ggplot(data=HA,
+       aes(x =  Alcohol_Consumption, y = Cholesterol_Level, color =Gender )) +
+    geom_boxplot()+
+  facet_wrap(~ Heart_Attack_Occurrence)
+```
+
+```{r}
+
+ggplot(data=HA_Yes,
+       aes(x = Diet_Quality, y = BMI, color = Gender)) +
+    geom_boxplot()+
+  facet_wrap(~ Region)
 
 
+
+ggplot(data=HA_No,
+       aes(x = Diet_Quality, y = BMI, color = Gender)) +
+    geom_boxplot()+
+  facet_wrap(~ Region)
+```
+
+```{r}
+ggplot(HA_Yes, 
+       aes(x = Diet_Quality, y = BMI)) +
+  stat_halfeye(adjust = 0.1,
+               justification = -0.4,
+               .width = -0.1,
+               point_colour = NA, 
+               size=0.01) +
+  geom_boxplot(width = .10,
+               outlier.shape = NA) +
+  stat_dots(side = "left", 
+            justification = 1.2, 
+            binwidth = .5,
+            dotsize = .4)
+```
+
+```{r}
+scatter_plot <- ggplot(HA, aes(x = Cholesterol_Level, y = BMI, color = Heart_Attack_Occurrence)) +
+  geom_point(size = 2, alpha = 0.5) +  # Adjust point size and transparency
+  labs(title = "Scatter Plot of Stress Levels vs. BMI",
+       x = "Stress Levels",
+       y = "BMI",
+       color = "Heart Attack Occurrence") +  # Add title and labels
+  theme_minimal(base_size = 14) +  # Use a clean theme with larger base font size
+  scale_color_manual(values = c("blue", "red"))  # Customize colors if needed
+
+# Print the scatter plot
+print(scatter_plot)
+
+```
+
+```{r}
+# Step 1: Select only continuous (numeric) columns along with Heart_Attack_Occurrence
+continuous_columns <- HA %>% 
+  select(where(is.numeric), Heart_Attack_Occurrence)
+
+# Step 2: Reshape the data to long format
+long_data <- continuous_columns %>%
+  pivot_longer(-Heart_Attack_Occurrence, names_to = "Variable", values_to = "Value")
+
+# Step 3: Create scatter plots for each continuous variable against Heart_Attack_Occurrence
+scatter_plot <- ggplot(long_data, aes(x = Value, y = as.numeric(Heart_Attack_Occurrence), color = Heart_Attack_Occurrence)) +
+  geom_point(alpha = 0.7, size = 2) +  # Adjust point size and transparency
+  facet_wrap(~ Variable, scales = "free") +  # Create facets for each variable
+  labs(title = "Scatter Plots of Continuous Variables by Heart Attack Occurrence",
+       x = "Value",
+       y = "Heart Attack Occurrence (0 = No, 1 = Yes)") +  # y-axis represents occurrence
+  theme_minimal(base_size = 14) +  # Clean theme
+  scale_color_manual(values = c("blue", "red"))  # Customize colors for heart attack occurrence
+
+# Print the scatter plots
+print(scatter_plot)
+
+# Print the scatter plots
+print(scatter_plot)
+```
+
+### Inspiration
+
+```{r}
+ggplot(HA, aes(x = Smoking_History, fill = Heart_Attack_Occurrence)) +
+  geom_bar(position = "fill") +
+  labs(title = "Smoking History vs Heart Attack Occurrence", 
+       y = "Proportion", 
+       x = "Smoking History") +
+  scale_fill_manual(values = c("lightblue", "salmon"), name = "Heart Attack Occurrence")
+```
+
+```{r}
+ggbetweenstats(
+  data = HA,
+  x = Heart_Attack_Occurrence, 
+  y = Stress_Levels,
+  type = "p",
+  mean.ci = TRUE, 
+  pairwise.comparisons = TRUE, 
+  pairwise.display = "s",
+  p.adjust.method = "fdr",
+  messages = FALSE
+)
+```
+
+::: callout note
+
+The very small effect size (Hedges' g = 0.04) suggests that although the difference is statistically significant, it may not be practically relevant. In other words, the difference in means may not be large enough to have meaningful implications in a real-world context. :::
+
+### Model building
+
+```{r}
+##model <- lm(Heart_Attack_Occurrence ~ Age + Cholesterol_Level + BMI + Heart_Rate, data = HA)
+#model
+```
+
+```{r}
+# Check for missing values
+na_count <- sum(is.na(HA$Heart_Attack_Occurrence))
+cat("Number of missing values in Heart_Attack_Occurrence:", na_count, "\n")
+
+unique(HA$Heart_Attack_Occurrence)
+
+```
+
+### Conclusion:
+
+The health crsis of heart attack is largely depended on the possibility

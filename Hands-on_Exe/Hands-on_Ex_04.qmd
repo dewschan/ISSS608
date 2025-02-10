@@ -258,7 +258,7 @@ ggplot(exam,
   theme_economist()
 ```
 
-### Add on: Plotting Maths with Gender with Black and White theme. 
+### Add on: Plotting Maths with Gender with Black and White theme.
 
 ```{r}
 ggplot(exam, 
@@ -278,7 +278,7 @@ ggplot(exam,
   theme_bw()
 ```
 
-```{}
+```         
 ```
 
 2 \<- a + facet_grid(class())

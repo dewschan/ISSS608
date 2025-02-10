@@ -10,8 +10,6 @@ execute:
   freeze: true
 ---
 
-
-
 ```{r}
 pacman::p_load(haven, SmartEDA, tidyverse, tidymodels, ggdist, ggridges, ggthemes,
                colorspace, gridExtra, ggstatsplot)
@@ -20,13 +18,14 @@ pacman::p_load(haven, SmartEDA, tidyverse, tidymodels, ggdist, ggridges, ggtheme
 ```{r}
 exam <- read_csv("data/Exam_data.csv")
 ```
+```{r}
+summary(exam)
+```
 
 ```{r}
-ggplot(data=exam, 
-       aes(y=CLASS,
-           x=ENGLISH)) +
-  geom_boxplot()
+ 
 ```
+
 ```{r}
 ggplot(exam, 
        aes(x = ENGLISH, 
@@ -47,9 +46,10 @@ ggplot(exam,
   scale_y_discrete(name = NULL, expand = expansion(add = c(0.2, 2.6))) +
   theme_ridges()
 ```
+
 ### rain drop plot.
 
-The probabilty density plot will smooth out the the curve and the dot plot will be able to show the actual data points. 
+The probabilty density plot will smooth out the the curve and the dot plot will be able to show the actual data points.
 
 ```{r}
 ggplot(exam, 
@@ -67,8 +67,6 @@ ggplot(exam,
             dotsize = 2)
 ```
 
-
-
 ```{r}
 ggbetweenstats(
   data = exam,
@@ -78,7 +76,6 @@ ggbetweenstats(
   messages = FALSE
 )
 ```
-
 
 ```{r}
 ggbetweenstats(
@@ -93,6 +90,3 @@ ggbetweenstats(
   messages = FALSE
 )
 ```
-
-
-
