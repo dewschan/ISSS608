@@ -9,9 +9,10 @@ execute:
   warning: false
   freeze: true
 ---
+
 ## Hands-on Exercise 5.1
 
-### Loading of Libraries 
+### Loading of Libraries
 
 ```{r}
 
@@ -20,12 +21,14 @@ pacman::p_load(plotly, ggtern, tidyverse)
 ```
 
 ### Importing the data set
+
 ```{r}
 #Reading the data into R environment
 pop_data <- read_csv("data/respopagsex2000to2018_tidy.csv") 
 ```
+
 ### Grouped summaries without the Pipe
- 
+
 ```{r}
 #Deriving the young, economy active and old measures
 agpop_mutated <- pop_data %>%
@@ -39,13 +42,11 @@ agpop_mutated <- pop_data %>%
   filter(TOTAL > 0)
 ```
 
-
 ```{r}
 #Building the static ternary plot
 ggtern(data=agpop_mutated,aes(x=YOUNG,y=ACTIVE, z=OLD)) +
   geom_point()
 ```
-
 
 ```{r}
 #Building the static ternary plot
@@ -54,6 +55,7 @@ ggtern(data=agpop_mutated, aes(x=YOUNG,y=ACTIVE, z=OLD)) +
   labs(title="Population structure, 2015") +
   theme_rgbw()
 ```
+
 ```{r}
 # reusable function for creating annotation object
 label <- function(txt) {
@@ -105,7 +107,6 @@ Loading fo libraries for this exercise
 pacman::p_load(corrplot, ggstatsplot, tidyverse)
 ```
 
-
 ```{r}
 wine <- read_csv("data/wine_quality.csv")
 ```
@@ -115,15 +116,19 @@ wine <- read_csv("data/wine_quality.csv")
 ```{r}
 pairs(wine[,1:11])
 ```
+
 ```{r}
 pairs(wine[,2:12])
 ```
+
 ```{r}
 pairs(wine[,2:12], upper.panel = NULL)
 ```
+
 ```{r}
 pairs(wine[,2:12], lower.panel = NULL)
 ```
+
 ### Including with correlation coefficients
 
 ```{r}
@@ -141,6 +146,7 @@ text(0.5, 0.5, txt, cex = cex.cor * (1 + r) / 2)
 pairs(wine[,2:12], 
       upper.panel = panel.cor)
 ```
+
 ### Visualising Correlation Matrix: ggcormat()
 
 ```{r}
@@ -148,6 +154,7 @@ ggstatsplot::ggcorrmat(
   data = wine, 
   cor.vars = 1:11)
 ```
+
 ```{r}
 ggstatsplot::ggcorrmat(
   data = wine, 
@@ -159,13 +166,13 @@ ggstatsplot::ggcorrmat(
   subtitle = "Four pairs are no significant at p < 0.05"
 )
 ```
+
 ```{r}
 ggplot.component = list(
     theme(text=element_text(size=5),
       axis.text.x = element_text(size = 8),
       axis.text.y = element_text(size = 8)))
 ```
-
 
 ```{r}
 #| fig-width: 24 #to widen the space
@@ -188,23 +195,26 @@ grouped_ggcorrmat(
   )
 )
 ```
+
 ```{r}
 wine.cor <- cor(wine[, 1:11])
 ```
 
-
 ```{r}
 corrplot(wine.cor)
 ```
+
 ```{r}
 corrplot(wine.cor, 
          method = "ellipse") 
 ```
+
 ```{r}
 corrplot(wine.cor, 
          method = "ellipse", 
          type="lower")
 ```
+
 ```{r}
 corrplot(wine.cor, 
          method = "ellipse", 
@@ -212,6 +222,7 @@ corrplot(wine.cor,
          diag = FALSE,
          tl.col = "black")
 ```
+
 ```{r}
 corrplot.mixed(wine.cor, 
                lower = "ellipse", 
@@ -220,6 +231,7 @@ corrplot.mixed(wine.cor,
                diag = "l",
                tl.col = "black")
 ```
+
 ```{r}
 corrplot.mixed(wine.cor, 
                lower = "ellipse", 
@@ -228,10 +240,10 @@ corrplot.mixed(wine.cor,
                diag = "l",
                tl.col = "black")
 ```
+
 ```{r}
 wine.sig = cor.mtest(wine.cor, conf.level= .95)
 ```
-
 
 ```{r}
 corrplot(wine.cor,
@@ -243,6 +255,7 @@ corrplot(wine.cor,
          p.mat = wine.sig$p,
          sig.level = .05)
 ```
+
 ```{r}
 corrplot.mixed(wine.cor, 
                lower = "ellipse", 
@@ -252,6 +265,7 @@ corrplot.mixed(wine.cor,
                order="AOE",
                tl.col = "black")
 ```
+
 ```{r}
 corrplot(wine.cor, 
          method = "ellipse", 
@@ -261,6 +275,7 @@ corrplot(wine.cor,
          hclust.method = "ward.D",
          addrect = 3)
 ```
+
 ## 5.3 Heatmap for Visualising and Analysing Multivariate Data
 
 ```{r}
@@ -282,11 +297,11 @@ wh1 <- dplyr::select(wh, c(3, 7:12))
 wh_matrix <- data.matrix(wh)
 ```
 
-
 ```{r}
 wh_heatmap <- heatmap(wh_matrix,
                       Rowv=NA, Colv=NA)
 ```
+
 ```{r}
 wh_heatmap <- heatmap(wh_matrix)
 ```
@@ -299,19 +314,19 @@ wh_heatmap <- heatmap(wh_matrix,
                       cexCol = 0.8,
                       margins = c(10, 4))
 ```
+
 ```{r}
 heatmaply(mtcars)
 ```
+
 ```{r}
 heatmaply(wh_matrix[, -c(1, 2, 4, 5)])
 ```
-
 
 ```{r}
 heatmaply(wh_matrix[, -c(1, 2, 4, 5)],
           scale = "column")
 ```
-
 
 ```{r}
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]))
@@ -320,6 +335,7 @@ heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]))
 ```{r}
 heatmaply(percentize(wh_matrix[, -c(1, 2, 4, 5)]))
 ```
+
 ```{r}
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
           dist_method = "euclidean",
@@ -330,7 +346,6 @@ heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
 wh_d <- dist(normalize(wh_matrix[, -c(1, 2, 4, 5)]), method = "euclidean")
 dend_expend(wh_d)[[3]]
 ```
-
 
 ```{r}
 wh_clust <- hclust(wh_d, method = "average")
@@ -345,12 +360,10 @@ heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
           k_row = 3)
 ```
 
-
 ```{r}
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
           seriate = "OLO")
 ```
-
 
 ```{r}
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
@@ -361,14 +374,13 @@ heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
           seriate = "mean")
 ```
+
 ```{r}
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
           seriate = "none")
 ```
 
-
 #### Working with colour palettes
-
 
 ```{r}
 heatmaply(normalize(wh_matrix[, -c(1, 2, 4, 5)]),
@@ -402,10 +414,12 @@ pacman::p_load(GGally, parallelPlot, tidyverse)
 ```{R}
 wh <- read_csv("data/WHData-2018.csv")
 ```
+
 ```{r}
 ggparcoord(data = wh, 
            columns = c(7:12))
 ```
+
 ```{r}
 ggparcoord(data = wh, 
            columns = c(7:12), 
@@ -415,6 +429,7 @@ ggparcoord(data = wh,
            boxplot = TRUE, 
            title = "Parallel Coordinates Plot of World Happines Variables")
 ```
+
 ```{r}
 ggparcoord(data = wh, 
            columns = c(7:12), 
@@ -425,6 +440,7 @@ ggparcoord(data = wh,
            title = "Multiple Parallel Coordinates Plots of World Happines Variables by Region") +
   facet_wrap(~ Region)
 ```
+
 ```{r}
 ggparcoord(data = wh, 
            columns = c(7:12), 
@@ -436,8 +452,8 @@ ggparcoord(data = wh,
   facet_wrap(~ Region) + 
   theme(axis.text.x = element_text(angle = 30))
 ```
-### Rotating x-axis text label
 
+### Rotating x-axis text label
 
 ```{r}
 ggparcoord(data = wh, 
@@ -450,6 +466,7 @@ ggparcoord(data = wh,
   facet_wrap(~ Region) + 
   theme(axis.text.x = element_text(angle = 30, hjust=1))
 ```
+
 ### The basic plot
 
 ```{r}
@@ -467,13 +484,11 @@ parallelPlot(wh,
 
 ```
 
-
 ```{r}
 parallelPlot(wh,
              continuousCS = "YlOrRd",
              rotateTitle = TRUE)
 ```
-
 
 ```{r}
 histoVisibility <- rep(TRUE, ncol(wh))
@@ -482,7 +497,6 @@ parallelPlot(wh,
              histoVisibility = histoVisibility)
 
 ```
-
 
 ## 5.5 Treemap Visualisation with R
 
@@ -504,6 +518,7 @@ realis2018_summarised <- summarise(realis2018_grouped,
                           `Median Unit Price ($ psm)` = median(`Unit Price ($ psm)`, na.rm = TRUE), 
                           `Median Transacted Price` = median(`Transacted Price ($)`, na.rm = TRUE))
 ```
+
 ```{r}
 realis2018_summarised <- realis2018 %>% 
   group_by(`Project Name`,`Planning Region`, 
@@ -514,6 +529,7 @@ realis2018_summarised <- realis2018 %>%
             `Median Unit Price ($ psm)` = median(`Unit Price ($ psm)`, na.rm = TRUE),
             `Median Transacted Price` = median(`Transacted Price ($)`, na.rm = TRUE))
 ```
+
 ```{r}
 realis2018_selected <- realis2018_summarised %>%
   filter(`Property Type` == "Condominium", `Type of Sale` == "Resale")
@@ -528,6 +544,7 @@ treemap(realis2018_selected,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
+
 ```{r}
 treemap(realis2018_selected,
         index=c("Planning Region", "Planning Area", "Project Name"),
@@ -538,6 +555,7 @@ treemap(realis2018_selected,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
+
 ```{r}
 treemap(realis2018_selected,
         index=c("Planning Region", "Planning Area", "Project Name"),
@@ -561,6 +579,7 @@ treemap(realis2018_selected,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
+
 ```{r}
 treemap(realis2018_selected,
         index=c("Planning Region", "Planning Area", "Project Name"),
@@ -572,6 +591,7 @@ treemap(realis2018_selected,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
+
 ```{r}
 treemap(realis2018_selected,
         index=c("Planning Region", "Planning Area", "Project Name"),
@@ -584,6 +604,7 @@ treemap(realis2018_selected,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
+
 ```{r}
 treemap(realis2018_selected,
         index=c("Planning Region", "Planning Area", "Project Name"),
@@ -597,7 +618,9 @@ treemap(realis2018_selected,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
-###  Designing Treemap using treemapify Package
+
+### Designing Treemap using treemapify Package
+
 ```{r}
 ggplot(data=realis2018_selected, 
        aes(area = `Total Unit Sold`,
@@ -620,7 +643,6 @@ ggplot(data=realis2018_selected,
 
 ```
 
-
 ```{r}
 ggplot(data=realis2018_selected, 
        aes(area = `Total Unit Sold`,
@@ -629,7 +651,9 @@ ggplot(data=realis2018_selected,
            subgroup2 = `Planning Area`)) + 
   geom_treemap()
 ```
+
 Adding boundary line
+
 ```{r}
 ggplot(data=realis2018_selected, 
        aes(area = `Total Unit Sold`,
@@ -641,11 +665,10 @@ ggplot(data=realis2018_selected,
                                 size = 2) +
   geom_treemap_subgroup_border(colour = "gray20")
 ```
-###  Designing Interactive Treemap using d3treeR
 
+### Designing Interactive Treemap using d3treeR
 
 install.packages("devtools")
-
 
 ```{r}
 library(devtools)
@@ -666,6 +689,7 @@ tm <- treemap(realis2018_summarised,
         title.legend = "Median Unit Price (S$ per sq. m)"
         )
 ```
+
 ```{r}
 d3tree(tm,rootname = "Singapore" )
 ```
