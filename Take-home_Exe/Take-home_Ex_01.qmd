@@ -20,6 +20,16 @@ The main task is to develop graphical visuals for a media company on an article 
 
 The plan is to carry out exploratory and confirmatory data analysis to confirm the observed trend before doing up the visuals required for the graphic.
 
+Since the goal is to find out if there are any observable trends and health or lifestyle factors leading to the occurance of heart attack in japanese youth, we will be completing filtering the data into 3 main groups for exploretary analysis.
+
+For this analysis we will be definiing Japanese youth as less 35 of age and the rest of the population considered as adults.
+
+1)  group of interest: Youth (15 to 34 https://www.jil.go.jp/english/jli/documents/2023/041-05.pdf (TBC))
+2)  youth with no heart attack 3)Adult with heart attack
+3)  adult with heart attack.
+
+Given elderly are considered to be above 65, they will be omitted from this study
+
 ## Loading of Packages
 
 The following code chunk indicate the list of packages used for this Take Home Exercise 01
@@ -44,7 +54,9 @@ summary and head functions are used to view and examin the data type before furt
 
 ```{r}
 summary(heart)
+```
 
+```{r}
 head (heart)
 ```
 
@@ -53,23 +65,99 @@ head (heart)
 ```{r}
 colSums(is.na(heart))
 ```
-As the metadata did not specify the data is  of the extra columns hence we will not be able the data in the "Extra_column 1 to 15"
+
+As the metadata did not specify the data is of the extra columns hence we will not be able the data in the "Extra_column 1 to 15"
 
 The first step of data preparation is to remove them first.
 
 ```{r}
-HA <- heart %>% select (1:17)
+HA <- heart %>% select (1:17) %>% filter (Age < 64)
 ```
 
 After removing the Extra columns, we continue by examining the data using the summary and head (HA) function.
 
 ```{r}
 summary(HA)
-
-head (HA)
 ```
 
+```{r}
+head(HA)
+```
+
+#### Trasnforming the data to the 4 main sub group.
+
 It was observed that the data consist two main types: namely continous and categorical. The following steps we will examine the distibution of the each type of data in details.
+
+```{r}
+HA <- HA %>%
+  mutate(Age_Grp = ifelse(Age > 35, "Adult", "Youth")) %>%
+  mutate(Event_Grp = ifelse(Age_Grp == "Adult" & Heart_Attack_Occurrence == "Yes", "Adult_HA",
+                    ifelse(Age_Grp == "Adult" & Heart_Attack_Occurrence == "No", "Adult_No_HA",
+                    ifelse(Age_Grp == "Youth" & Heart_Attack_Occurrence == "Yes", "Youth_HA",
+                    ifelse(Age_Grp == "Youth" & Heart_Attack_Occurrence == "No", "Youth_No_HA",NA)))))
+
+HA <- HA %>%
+  mutate(BMI_cat = case_when( 
+    BMI < 18.5 ~ "Underweight",
+    BMI >= 18.5 & BMI < 24.9 ~ "Normal",
+    BMI >= 25 & BMI < 29.9 ~ "Overweight",
+    BMI >= 30 ~ "Obese",
+    TRUE ~ NA_character_
+  ))
+
+HA <- HA %>%
+  mutate(BP_cat = case_when(
+    Systolic_BP < 120 & Diastolic_BP < 80 ~ "Normal",
+    (Systolic_BP >= 120 & Systolic_BP < 130) & Diastolic_BP < 80 ~ "Elevated",
+    (Systolic_BP >= 130 & Systolic_BP < 140) | (Diastolic_BP >= 80 & Diastolic_BP < 90) ~ "High Stage 1",
+    Systolic_BP >= 140 | Diastolic_BP >= 90 ~ "High Stage 2",
+    TRUE ~ NA_character_
+  ))
+HA <- HA %>%
+  mutate(Cholesterol_Level_cat = case_when(
+    Cholesterol_Level < 200 ~ "Desirable",
+    Cholesterol_Level >= 200 & Cholesterol_Level < 239 ~ "Borderline High",
+    Cholesterol_Level >= 240 ~ "High",
+    TRUE ~ NA_character_
+  ))
+
+HA <- HA %>%
+  mutate(Stress_Level_cat = case_when(
+    Stress_Levels < 3 ~ "Low",
+    Stress_Levels >= 3 & Stress_Levels < 6 ~ "Moderate",
+    Stress_Levels >= 6 ~ "High",
+    TRUE ~ NA_character_
+  ))
+
+
+HA <- HA %>%
+  mutate(Heart_Attack_Occurrence_num = ifelse(Heart_Attack_Occurrence == "Yes", 1,
+                                              ifelse(Heart_Attack_Occurrence == "No", 0, NA)))
+
+HA <- HA %>% 
+  mutate(Heart_Rate_cat = case_when(
+    Heart_Rate < 70 ~ "Below Normal",
+    Heart_Rate >=  70 & Heart_Rate <= 100 ~ "Normal",
+    Heart_Rate  > 100 ~ "Elevated",
+    TRUE ~ NA_character_
+  ))
+
+
+```
+
+```{r}
+# Removal of NA data 
+
+HA <- HA %>%
+  filter(!is.na(BMI_cat) & !is.na(Cholesterol_Level_cat))
+
+```
+
+```{r}
+HA_Yes <- filter(HA, Heart_Attack_Occurrence == "Yes")
+HA_No <- filter(HA, Heart_Attack_Occurrence == "No")
+HA_youth <- filter(HA, Age_Grp == "Youth")
+```
 
 ### Visualising of categorical Data
 
@@ -81,17 +169,19 @@ The code below is extract our the categorical data and summarise into the occura
 categorical_columns <- HA %>% select(where(~is.character(.x) || is.factor(.x)))
 
 count_occurrences <- categorical_columns %>%
-  pivot_longer(-Heart_Attack_Occurrence, names_to = "Category", values_to = "Value") %>%
-  group_by(Category, Value, Heart_Attack_Occurrence) %>%
+  pivot_longer(cols= - c(Heart_Attack_Occurrence, Age_Grp, Event_Grp), names_to = "Category", values_to = "Value") %>%
+  group_by(Category, Value, Age_Grp, Heart_Attack_Occurrence, Event_Grp) %>%
   summarise(Occurrences = n(), .groups = 'drop')
 
 print(count_occurrences)
 ```
 
 ```{r}
+#| fig-width: 20 #to widen the space
+#| fig-height: 16 #to lengthen the graph
 # Create bar plots for each categorical field
 bar_plots <- count_occurrences %>%
-  ggplot(aes(x = Value, y = Occurrences, fill = Heart_Attack_Occurrence)) + 
+  ggplot(aes(x = Value, y = Occurrences, fill = Event_Grp)) + 
   geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
   facet_wrap(~ Category, scales = "free") +
   theme_minimal() +
@@ -106,11 +196,13 @@ print(bar_plots)
 #### closer examination of categorical trend for those with heart attack
 
 ```{r}
-count_occurrences_yes <- filter(count_occurrences, Heart_Attack_Occurrence == "Yes")
+#| fig-width: 20 #to widen the space
+#| fig-height: 16 #to lengthen the graph
+count_occurrences_youth <- filter(count_occurrences, Age_Grp == "Youth")
 
 # Create bar plots for each categorical field
-bar_plots <- count_occurrences_yes %>%
-  ggplot(aes(x = Value, y = Occurrences, )) + 
+bar_plots <- count_occurrences_youth %>%
+  ggplot(aes(x = Value, y = Occurrences, fill = Heart_Attack_Occurrence)) + 
   geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
   facet_wrap(~ Category, scales = "free") +
   theme_minimal() +
@@ -125,26 +217,38 @@ print(bar_plots)
 ```{r}
 #| fig-width: 24 #to widen the space
 #| fig-height: 24 #to lengthen the graph
-pm <- ggpairs(HA, columns = 1:17, ggplot2::aes(colour = Heart_Attack_Occurrence ))
-print (pm)
+#pm <- ggpairs(HA, columns = 1:17, ggplot2::aes(colour = Heart_Attack_Occurrence ))
+#print (pm)
 ```
 
 ## visualising continuous data
 
 ```{r}
 # Select only the continuous columns (numeric)
-continuous_columns <- HA %>% select(where(is.numeric), Heart_Attack_Occurrence)
+contin_col_HA <- HA %>% select(where(is.numeric), Heart_Attack_Occurrence, Age_Grp)
 
 
-b<-continuous_columns %>%
-  pivot_longer(cols = -Heart_Attack_Occurrence, names_to = "Field", values_to = "Value")
+contin_col_HA_Long<-contin_col_HA %>%
+  pivot_longer(cols = -c(Heart_Attack_Occurrence, Age_Grp), names_to = "Field", values_to = "Value")
                
-              
+contin_col_HA_Long_Yes <- filter(contin_col_HA_Long, Heart_Attack_Occurrence == "Yes")              
 ```
 
 ```{R}
 # Create histograms with density plots for continuous variables
-histograms <- ggplot(b, aes(x = Value, fill = Heart_Attack_Occurrence )) + 
+histograms <- ggplot(contin_col_HA_Long, aes(x = Value, fill = Heart_Attack_Occurrence )) + 
+  geom_histogram(binwidth = 1, alpha = 0.8) + 
+  theme_minimal() + 
+  labs(title = "Histograms of Continuous Fields", x = "Value", y = "Frequency")+
+  facet_wrap(~ Field, scales = "free") 
+
+# Print the histograms
+print(histograms)
+```
+
+```{R}
+# Create histograms with density plots for continuous variables
+histograms <- ggplot(contin_col_HA_Long_Yes, aes(x = Value, fill = Age_Grp )) + 
   geom_histogram(binwidth = 1, alpha = 0.8) + 
   theme_minimal() + 
   labs(title = "Histograms of Continuous Fields", x = "Value", y = "Frequency")+
@@ -162,6 +266,62 @@ ggplot(HA, aes(x = Stress_Levels)) +
   geom_histogram(aes(y = ..density..), binwidth = 1, fill = "blue", alpha = 0.5) +
   geom_density(color = "red", size = 1) +
   labs(title = "Histogram and Density Plot of Stress Levels", x = "Stress Levels", y = "Density")
+```
+
+### Chi Square
+
+```{r}
+ggbarstats(HA, 
+           x=Age_Grp,
+           y=Heart_Attack_Occurrence)
+```
+
+```{r}
+ggbarstats(HA, 
+           x=Event_Grp,
+           y=Region)
+```
+
+```{r}
+ggbarstats(HA_youth, 
+           x= Heart_Attack_Occurrence,
+           y=BMI_cat)
+```
+
+```{r}
+
+# Select categorical columns
+categorical_columns <- HA_youth %>% select(where(~is.character(.) || is.factor(.)))
+
+# Function to perform Chi-Square test and visualize the results
+analyze_association <- function(data, x, y) {
+  # Perform Chi-Square test
+  table <- table(data[[x]], data[[y]])
+  chi_test <- chisq.test(table)
+  
+  # Print Chi-Square test results
+  print(paste("Chi-Square Test between", x, "and", y))
+  print(chi_test)
+  
+  # Visualize the results using bar plot
+  plot <- ggplot(HA_youth, aes_string(x = x, fill = y)) +
+    geom_bar(position = "dodge") +
+    labs(title = paste("Bar Plot of", x, "vs", y, "\nChi-Square p-value:", format(chi_test$p.value, digits=4)),
+         x = x,
+         y = "Count") +
+    theme_bw()
+  
+  print(plot)
+}
+
+# Analyze association for each categorical column with Event_Grp
+for (column in colnames(categorical_columns)) {
+  if (column != "Heart_Attack_Occurrence") { # Skip Event_Grp column itself
+    analyze_association(HA_youth, "Heart_Attack_Occurrence", column)
+  }
+}
+
+
 ```
 
 ```{r}
@@ -182,25 +342,17 @@ ggplot(HA, aes(x = Stress_Levels, fill = Heart_Attack_Occurrence)) +  # Map fill
 ```{r}
 
 # Create individual boxplots for each continuous field
-individual_boxplots <- 
-  ggplot(b, aes(x = Field, y = Value, fill = Heart_Attack_Occurrence)) +
-  geom_boxplot() +
-  facet_wrap(~ Field, scales = "free") +
-  theme_minimal() +
-  labs(title = "Boxplots of Continuous Fields",
-       x = "Field",
-       y = "Value")
+#individual_boxplots <- 
+  #ggplot(HA, aes(x = Field, y = Value, fill = Heart_Attack_Occurrence)) +
+  #geom_boxplot() +
+  #facet_wrap(~ Field, scales = "free") +
+  #theme_minimal() +
+  #labs(title = "Boxplots of Continuous Fields",
+       #x = "Field",
+       #y = "Value")
 
 # Print the individual boxplots
-print(individual_boxplots)
-```
-
-```{r}
-HA_Yes <- filter(HA, Heart_Attack_Occurrence == "Yes")
-```
-
-```{r}
-HA_No <- filter(HA, Heart_Attack_Occurrence == "No")
+#print(individual_boxplots)
 ```
 
 ```{r}
@@ -209,40 +361,37 @@ summary(HA_Yes)
 
 ```{r}
 ggplot(data=HA,
-       aes(x =  Alcohol_Consumption, y = Cholesterol_Level, color =Gender )) +
+       aes(x =  Alcohol_Consumption, y = Cholesterol_Level, color =Heart_Attack_Occurrence )) +
     geom_boxplot()+
-  facet_wrap(~ Heart_Attack_Occurrence)
+  facet_wrap(~ Age_Grp)
 ```
 
 ```{r}
 
 ggplot(data=HA_Yes,
-       aes(x = Diet_Quality, y = BMI, color = Gender)) +
+       aes(x = Diet_Quality, y = BMI, color = Age_Grp)) +
     geom_boxplot()+
   facet_wrap(~ Region)
 
-
-
-ggplot(data=HA_No,
-       aes(x = Diet_Quality, y = BMI, color = Gender)) +
-    geom_boxplot()+
-  facet_wrap(~ Region)
 ```
 
 ```{r}
-ggplot(HA_Yes, 
-       aes(x = Diet_Quality, y = BMI)) +
-  stat_halfeye(adjust = 0.1,
-               justification = -0.4,
-               .width = -0.1,
+
+#| fig-width: 24 #to widen the space
+#| fig-height: 24 #to lengthen the graph
+ggplot(HA_youth, 
+       aes(x = Heart_Attack_Occurrence, y = BMI)) +
+  stat_halfeye(adjust = 0.5,
+               justification = -0.01,
+               .width = 0.01,
                point_colour = NA, 
                size=0.01) +
-  geom_boxplot(width = .10,
+  geom_boxplot(width = .05,
                outlier.shape = NA) +
   stat_dots(side = "left", 
             justification = 1.2, 
             binwidth = .5,
-            dotsize = .4)
+            dotsize = .1)
 ```
 
 ```{r}
@@ -297,9 +446,11 @@ ggplot(HA, aes(x = Smoking_History, fill = Heart_Attack_Occurrence)) +
   scale_fill_manual(values = c("lightblue", "salmon"), name = "Heart Attack Occurrence")
 ```
 
+### Anova
+
 ```{r}
 ggbetweenstats(
-  data = HA,
+  data = HA_youth,
   x = Heart_Attack_Occurrence, 
   y = Stress_Levels,
   type = "p",
@@ -311,23 +462,49 @@ ggbetweenstats(
 )
 ```
 
-::: callout note
+```{r}
+ggbetweenstats(
+  data = HA_youth,
+  x = Heart_Attack_Occurrence, 
+  y = BMI,
+  type = "p",
+  mean.ci = TRUE, 
+  pairwise.comparisons = TRUE, 
+  pairwise.display = "s",
+  p.adjust.method = "fdr",
+  messages = FALSE
+)
+```
 
-The very small effect size (Hedges' g = 0.04) suggests that although the difference is statistically significant, it may not be practically relevant. In other words, the difference in means may not be large enough to have meaningful implications in a real-world context. :::
+
+
+::: callout-note
+
+The very small effect size (Hedges' g = 0.04) suggests that although the difference is statistically significant, it may not be practically relevant. In other words, the difference in means may not be large enough to have meaningful implications in a real-world context.
+
+:::
 
 ### Model building
 
 ```{r}
-##model <- lm(Heart_Attack_Occurrence ~ Age + Cholesterol_Level + BMI + Heart_Rate, data = HA)
-#model
+model <- lm(Heart_Attack_Occurrence_num ~ Cholesterol_Level_cat + BMI_cat + Diabetes_History, data = HA_youth)
+model
+
 ```
 
 ```{r}
-# Check for missing values
-na_count <- sum(is.na(HA$Heart_Attack_Occurrence))
-cat("Number of missing values in Heart_Attack_Occurrence:", na_count, "\n")
+check_n <- check_normality(model)
+plot(check_n)
+```
 
-unique(HA$Heart_Attack_Occurrence)
+```{r}
+check_h <- check_heteroscedasticity(model)
+
+plot(check_h)
+```
+
+```{r}
+check_model(model)
 
 ```
 

@@ -1,0 +1,43 @@
+---
+title: "In-class 05"
+author: "Dew Stella Chan"
+date: "2025-02-15"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+---
+
+
+
+```{r}
+pacman::p_load(tidyverse, readxl, SmartEDA, easystats,gtsummary)
+```
+
+### Importing Data
+```{r}
+car_resale <-
+  read_xls("data/In_Class_Ex05/ToyotaCorolla.xls", "data")
+```
+
+```{r}
+summary(car_resale)
+```
+```{r}
+list(car_resale)
+```
+```{r}
+summary1  <- car_resale %>%
+  ExpData(type=1)
+```
+
+making it into object class and further transform into a table in R
+
+```{r}
+car_resale %>% 
+  ExpData(type=2)
+```
+
+
