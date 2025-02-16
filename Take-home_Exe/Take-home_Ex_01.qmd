@@ -10,47 +10,56 @@ execute:
   freeze: true
 ---
 
-# Take Home Exercise 01
-
 This quota document shows the visual analytics conducted for the Take Home Exercise 01, The data set chosen is the [Heart Attack in Japan Youth Vs Adult](https://www.kaggle.com/code/radhikaarajdev/heart-attack-risk-youth-vs-adults-in-japan) from Kaggle.
 
-## Tasks Required
+## Required Task
 
-The main task is to develop graphical visuals for a media company on an article for the possible factor leading to heart attack trend in Japanese Youth.
+The main task is to develop graphical visuals for a media company on an article for the possible factors leading to heart attack trends in Japanese Youth.
 
 The plan is to carry out exploratory and confirmatory data analysis to confirm the observed trend before doing up the visuals required for the graphic.
 
-Since the goal is to find out if there are any observable trends and health or lifestyle factors leading to the occurance of heart attack in japanese youth, we will be completing filtering the data into 3 main groups for exploretary analysis.
+The goal is to find out if there are any observable trends and health or lifestyle factors leading to the occurrence of heart attack in Japanese youth.
 
-For this analysis we will be definiing Japanese youth as less 35 of age and the rest of the population considered as adults.
+For the purpose of this analysis, I define Japanese youth as individuals under the age of 35, following the definition provided in the article on [Youth Employment Policies in Japan](https://www.jil.go.jp/english/jli/documents/2023/041-05.pdf). The data set is catogrised into 4 main groups as follows:
 
-1)  group of interest: Youth (15 to 34 https://www.jil.go.jp/english/jli/documents/2023/041-05.pdf (TBC))
-2)  youth with no heart attack 3)Adult with heart attack
-3)  adult with heart attack.
+1)  Youths who have experienced a heart attack (interest group),
+2)  Youths who have not experienced a heart attack,
+3)  Adults who have experienced a heart attack,
+4)  Adults who have not experienced a heart attack.
 
-Given elderly are considered to be above 65, they will be omitted from this study
+Population with age above 65, they will be omitted from this study as age above 65 and above are considered as elderly based on the [Wikipedia.](https://en.wikipedia.org/wiki/Aging_of_Japan#:~:text=Article,as%20South%20Korea%20and%20China.)
 
-## Loading of Packages
+## 1.0 Loading of Packages
 
-The following code chunk indicate the list of packages used for this Take Home Exercise 01
+The following code chunk indicates the list of packages used for this Take Home Exercise 01.
 
 ```{r}
 pacman::p_load(haven, SmartEDA, tidyverse, tidymodels, ggdist, ggridges, ggthemes,
                colorspace, gridExtra, ggstatsplot, GGally, 
-               readxl, performance, parameters, see)
+               readxl, performance, parameters, car,aod, ggExtra, ggiraph, corrplot)
 ```
 
-## Loading of Data
+## 2.0 Importing of Data and Data Preparation.
 
-As the data is in csv format, the data is loaded using read_csv function.
+### 2.1 Importing data.
+
+As the data is in csv file format, the data is loaded using read_csv function.
 
 ```{r}
 heart <- read_csv("data/Ex01/japan_heart_attack_dataset.csv")
 ```
 
-### Data Preparation
+### 2.2 Data Preparation
 
-summary and head functions are used to view and examin the data type before further processing is carried out.
+As the metadata did not specify the data in the extra column 1 to 15, hence we will not be able the data in the "Extra_column 1 to 15"
+
+The first step of data preparation is to remove them first, and remove population who are above 64.
+
+```{r}
+heart <- heart %>% select (1:17) %>% filter (Age < 65)
+```
+
+The summary and head functions are used to view and examine the data before proceeding further.
 
 ```{r}
 summary(heart)
@@ -60,37 +69,49 @@ summary(heart)
 head (heart)
 ```
 
-### Check for missing values.
+### 2.3 Check for missing values
+
+is.na function is used to check if the data contain any missing values,if there are, they are being added.
 
 ```{r}
 colSums(is.na(heart))
 ```
 
-As the metadata did not specify the data is of the extra columns hence we will not be able the data in the "Extra_column 1 to 15"
-
-The first step of data preparation is to remove them first.
+After removing the Extra columns, we continue by examining again the data using the summary and head functions to ensure that the extra columns are successfully removed.
 
 ```{r}
-HA <- heart %>% select (1:17) %>% filter (Age < 64)
-```
-
-After removing the Extra columns, we continue by examining the data using the summary and head (HA) function.
-
-```{r}
-summary(HA)
+summary(heart)
 ```
 
 ```{r}
-head(HA)
+head(heart)
 ```
 
-#### Trasnforming the data to the 4 main sub group.
+```{r}
+heart <- heart %>%
+  mutate(Age_Grp = ifelse(Age > 35, "Adult", "Youth"))
+```
 
-It was observed that the data consist two main types: namely continous and categorical. The following steps we will examine the distibution of the each type of data in details.
+### 2.4 Transforming the data to the 4 main sub group.
+
+It was observed that the data consist two types of variables: namely continuous and categorical.
+
+As mentioned in section 1.0, the data will be categorised into the 4 main group.
+
+Given that the continuous data are consist of variables such as heart rate, cholesterol level, Systolic and Diastolic Blood Pressure, they are being categorized to established category . For this purpose of the analysis, we will use the range indicate in the following sites and with the help of Microsoft Co-pilot.
+
+1.  [Body Mass Index (BMI)](https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html?form=MG0AV3)
+
+2.  [Blood pressure (BP)](https://www.heart.org/en/health-topics/high-blood-pressure?form=MG0AV3)
+
+3.  [Cholesterol Levels](https://www.heart.org/en/health-topics/cholesterol/about-cholesterol/what-your-cholesterol-levels-mean)
+
+4.  [Heart Rate](https://www.mayoclinic.org/healthy-lifestyle/fitness/expert-answers/heart-rate/faq-20057979)
+
+Using the following codes, the data are categorised into 4 main groups and the health indicators are categorized into the established data.
 
 ```{r}
-HA <- HA %>%
-  mutate(Age_Grp = ifelse(Age > 35, "Adult", "Youth")) %>%
+HA <- heart %>%
   mutate(Event_Grp = ifelse(Age_Grp == "Adult" & Heart_Attack_Occurrence == "Yes", "Adult_HA",
                     ifelse(Age_Grp == "Adult" & Heart_Attack_Occurrence == "No", "Adult_No_HA",
                     ifelse(Age_Grp == "Youth" & Heart_Attack_Occurrence == "Yes", "Youth_HA",
@@ -99,8 +120,8 @@ HA <- HA %>%
 HA <- HA %>%
   mutate(BMI_cat = case_when( 
     BMI < 18.5 ~ "Underweight",
-    BMI >= 18.5 & BMI < 24.9 ~ "Normal",
-    BMI >= 25 & BMI < 29.9 ~ "Overweight",
+    BMI >= 18.5 & BMI < 25 ~ "Normal",
+    BMI >= 25 & BMI < 30 ~ "Overweight",
     BMI >= 30 ~ "Obese",
     TRUE ~ NA_character_
   ))
@@ -113,10 +134,11 @@ HA <- HA %>%
     Systolic_BP >= 140 | Diastolic_BP >= 90 ~ "High Stage 2",
     TRUE ~ NA_character_
   ))
+
 HA <- HA %>%
   mutate(Cholesterol_Level_cat = case_when(
     Cholesterol_Level < 200 ~ "Desirable",
-    Cholesterol_Level >= 200 & Cholesterol_Level < 239 ~ "Borderline High",
+    Cholesterol_Level >= 200 & Cholesterol_Level < 240~ "Borderline High",
     Cholesterol_Level >= 240 ~ "High",
     TRUE ~ NA_character_
   ))
@@ -130,10 +152,6 @@ HA <- HA %>%
   ))
 
 
-HA <- HA %>%
-  mutate(Heart_Attack_Occurrence_num = ifelse(Heart_Attack_Occurrence == "Yes", 1,
-                                              ifelse(Heart_Attack_Occurrence == "No", 0, NA)))
-
 HA <- HA %>% 
   mutate(Heart_Rate_cat = case_when(
     Heart_Rate < 70 ~ "Below Normal",
@@ -142,28 +160,127 @@ HA <- HA %>%
     TRUE ~ NA_character_
   ))
 
+```
 
+Examine of missing data after recoding
+
+note that there are 277 recids of BMI data and 108 of chelesterol records not being
+
+```{r}
+missing_values <- colSums(is.na(HA))
+print(missing_values)
 ```
 
 ```{r}
-# Removal of NA data 
+summary(HA)
+```
 
+### 2.5 Re-coding Catological data for Logistic Regression
+
+```{r}
 HA <- HA %>%
-  filter(!is.na(BMI_cat) & !is.na(Cholesterol_Level_cat))
+  mutate(Heart_Attack_Occurrence_num = case_when(
+      Heart_Attack_Occurrence == "Yes" ~ 1,
+      Heart_Attack_Occurrence == "No" ~ 0,
+      TRUE ~ NA_real_),
+    Gender_num = case_when(
+      Gender == "Male" ~ 1,
+      Gender == "Female" ~ 0,
+      TRUE ~ NA_real_),
+    Region_num = case_when(
+      Region == "Urban" ~ 1,
+      Region == "Rural" ~ 0,
+      TRUE ~ NA_real_),
+    Smoking_History_num = case_when(
+      Smoking_History == "Yes" ~ 1,
+      Smoking_History == "No" ~ 0,
+      TRUE ~ NA_real_),
+    Diabetes_History_num = case_when(
+      Diabetes_History == "Yes" ~ 1,
+      Diabetes_History == "No" ~ 0,
+      TRUE ~ NA_real_),
+    Hypertension_History_num = case_when(
+      Hypertension_History == "Yes" ~ 1,
+      Hypertension_History == "No" ~ 0,
+      TRUE ~ NA_real_),
+    Family_History_num = case_when(
+      Family_History == "Yes" ~ 1,
+      Family_History == "No" ~ 0,
+      TRUE ~ NA_real_),
+    Physical_Activity_num = case_when(
+      Physical_Activity == "High" ~ 0,
+      Physical_Activity == "Moderate" ~ 1,
+      Physical_Activity == "Low" ~ 2,
+      TRUE ~ NA_real_),
+    Diet_Quality_num = case_when(
+      Diet_Quality == "Good" ~ 0,
+      Diet_Quality == "Average" ~ 1,
+      Diet_Quality == "Poor" ~ 2,
+      TRUE ~ NA_real_),
+    Alcohol_Consumption_num = case_when(
+      Alcohol_Consumption == "None" ~ 0,
+      Alcohol_Consumption == "Low" ~ 1,
+      Alcohol_Consumption == "Moderate" ~ 2,
+      Alcohol_Consumption == "High" ~ 3,
+      TRUE ~ NA_real_),
+    Stress_Level_cat_num = case_when(
+      Stress_Level_cat == "Low" ~ 0,
+      Stress_Level_cat == "Moderate" ~ 1,
+      Stress_Level_cat == "High" ~ 2,
+      TRUE ~ NA_real_),
+    BMI_cat_num = case_when(
+      BMI_cat == "Underweight" ~ 0,
+      BMI_cat == "Normal" ~ 1,
+      BMI_cat == "Overweight" ~ 2,
+      BMI_cat == "Obese" ~ 2,
+      TRUE ~ NA_real_),
+    Heart_Rate_cat_num = case_when(
+      Heart_Rate_cat  == "Below Normal" ~ 0,
+      Heart_Rate_cat  == "Normal" ~ 1,
+      Heart_Rate_cat  == "Elevated" ~ 2,
+      TRUE ~ NA_real_),
+    BP_cat_num = case_when(
+      BP_cat  == "Normal" ~ 0,
+      BP_cat  == "Elevated" ~ 1,
+      BP_cat  == "High Stage 1" ~ 2,
+      BP_cat  == "High Stage 2" ~ 3,
+      TRUE ~ NA_real_),
+    Cholesterol_Level_cat_num = case_when(
+      Cholesterol_Level_cat  == "Desirable" ~ 0,
+      Cholesterol_Level_cat == "Borderline High" ~ 1,
+      Cholesterol_Level_cat  == "High" ~ 2,
+      TRUE ~ NA_real_))
+
 
 ```
+
+Checking of data after re-coding.
+
+```{r}
+missing_values <- colSums(is.na(HA))
+print(missing_values)
+```
+
+### 2.6 Prepare of varies data frame for easy of infographic.
 
 ```{r}
 HA_Yes <- filter(HA, Heart_Attack_Occurrence == "Yes")
-HA_No <- filter(HA, Heart_Attack_Occurrence == "No")
+HA_adult <- filter(HA, Age_Grp == "Adult")
 HA_youth <- filter(HA, Age_Grp == "Youth")
+HA_youth_yes <- filter(HA_youth, Heart_Attack_Occurrence == "Yes")
 ```
 
-### Visualising of categorical Data
+## 3.0 Exploratory Data Analysis (EDA)
 
-The aim of this task is to examine if there are any trends in categorical data in the occurance of heart attack in Japnaese population.
+We start off by understanding the distribution of the variables and examine if there were any observable trends to be tested out using confirmatory analysis.
 
-The code below is extract our the categorical data and summarise into the occurance of heart attack
+### 3.1 Visualising Distribution of the Categorical Variables
+
+The aim of this task is to examine if there are any trends in categorical data in the occurrence of heart attack in Japanese population.
+
+The code below is extract our the categorical data and summaries into the occurrence of heart attack by Heart occurrence Age Groups and Event Groups.
+
+The data are processed using the following codes to allow flexibility when exploring the data set.Hence HA is being used instead of the subgroups. Those data sets would be used in the subsequent visuslisation.
 
 ```{r}
 categorical_columns <- HA %>% select(where(~is.character(.x) || is.factor(.x)))
@@ -172,128 +289,189 @@ count_occurrences <- categorical_columns %>%
   pivot_longer(cols= - c(Heart_Attack_Occurrence, Age_Grp, Event_Grp), names_to = "Category", values_to = "Value") %>%
   group_by(Category, Value, Age_Grp, Heart_Attack_Occurrence, Event_Grp) %>%
   summarise(Occurrences = n(), .groups = 'drop')
-
-print(count_occurrences)
 ```
 
 ```{r}
 #| fig-width: 20 #to widen the space
 #| fig-height: 16 #to lengthen the graph
-# Create bar plots for each categorical field
+
 bar_plots <- count_occurrences %>%
-  ggplot(aes(x = Value, y = Occurrences, fill = Event_Grp)) + 
-  geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
+  ggplot(aes(x = Value, y = Occurrences, fill = Heart_Attack_Occurrence)) + 
+  geom_bar(stat = "identity", position = position_dodge()) +  
   facet_wrap(~ Category, scales = "free") +
   theme_minimal() +
-  labs(title = "Counts of Unique Values in Categorical Fields",
+  labs(title = "Distribution of Categorical Variables of The Study Population.",
        x = "Unique Values",
-       y = "Count") 
+       y = "Count") +
+  scale_fill_manual(values = c("Yes" = "red", "No" = "#4682B4"))
 
-# Print the bar plots
-print(bar_plots)
+bar_plots
 ```
 
-#### closer examination of categorical trend for those with heart attack
+::: Callout-note
+The above chart shows the data distribution for the categorical variables of the data set.
+
+It includes the entire data set of the risk factors with whom had have heart attack verse whom had not have attack in Japan in all age group.
+
+Before visualizing the data, one would expect [risk factors](https://www.mayoclinic.org/diseases-conditions/heart-attack/symptoms-causes/syc-20373106) such as high cholesterol level, elevated heart rate and with smoking history, will likely result in more occurrence of heart attack in but solely by looking at the distribution of the data, this may not be true.
+
+The main take away from the analysis is that it seems there is no **sole risk factor** which will lead to heart attack with the Japanese population sampled for this data set.
+:::
+
+#### 3.1.1 Closer Examination on the Distribution Categorical Variables in different Age group in Youth vs Adult
 
 ```{r}
 #| fig-width: 20 #to widen the space
 #| fig-height: 16 #to lengthen the graph
-count_occurrences_youth <- filter(count_occurrences, Age_Grp == "Youth")
+count_occurrences_yes <- filter(count_occurrences,  Heart_Attack_Occurrence == "Yes")
 
-# Create bar plots for each categorical field
-bar_plots <- count_occurrences_youth %>%
-  ggplot(aes(x = Value, y = Occurrences, fill = Heart_Attack_Occurrence)) + 
-  geom_bar(stat = "identity", position = position_dodge()) +  # Use position_dodge for side-by-side bars
+bar_plots_yes <- count_occurrences_yes %>%
+  ggplot(aes(x = Value, y = Occurrences, fill = Age_Grp)) + 
+  geom_bar(stat = "identity", position = position_dodge()) + 
   facet_wrap(~ Category, scales = "free") +
   theme_minimal() +
-  labs(title = "Counts of Unique Values in Categorical Fields",
-       x = "Unique Values",
-       y = "Count") 
+  labs(title = "Distribution of Categorical Variables of subjects with Heart Attack Across Age Groups",
+       y = "Count") +
+scale_fill_manual(values = c("Youth" = "#FF1493", "Adult" = "#FFA07A"))
 
-# Print the bar plots
-print(bar_plots)
+bar_plots_yes
 ```
 
+::: Callout-note
+Due to the study population, contains more subjects with heart attack, it is good to visualise the distribution across the age groups with heart attack. This may provide some interesting insights.
+
+The charts above show the distribution of the categorical variables for study subjects who had heart attack across different age groups.
+
+At a glance, the general distribution across categorical variables may seem to be similar across both age groups but at a closer examination. the following observations could be seen:
+
+-   BP_cat "high stage 1" in adults has higher occurrence in heart attack when compared to youth.
+
+-   In youth, the occurrence of heart attack across gender while in adult a slightly in male verse female.
+
+-   There seems to be have more occurrence in heart attack occurring in urban setting than rural setting.
+
+-   It seem to have association between BMI and heart attack with more slight more occurrence in overweight subjects as compared to other BMI category.
+
+-   It seems that there is association with moderate stress level with high proportion in both age groups.
+
+From the distribution, it seems that there is no sole factor which stand out in the youth population which will result in heart attack, confirmatory analysis would be need to confirm the analysis or explanatory model using logistic regression could be carried out to further explain risk factors.
+:::
+
+#### 3.1.2 Closer Examination on the Distribution Categorical Variables in the Youth Age group.
+
 ```{r}
-#| fig-width: 24 #to widen the space
-#| fig-height: 24 #to lengthen the graph
-#pm <- ggpairs(HA, columns = 1:17, ggplot2::aes(colour = Heart_Attack_Occurrence ))
-#print (pm)
+#| fig-width: 20 #to widen the space
+#| fig-height: 16 #to lengthen the graph
+count_occurrences_youth <- filter(count_occurrences,  Age_Grp == "Youth")
+
+bar_plots_yes <- count_occurrences_youth %>%
+  ggplot(aes(x = Value, y = Occurrences, fill = Heart_Attack_Occurrence)) + 
+  geom_bar(stat = "identity", position = position_dodge()) + 
+  facet_wrap(~ Category, scales = "free") +
+  theme_minimal() +
+  labs(title = "Distribution of Categorical Variables of subjects with Heart Attack in Youth",
+       y = "Count") +
+scale_fill_manual(values = c("Yes" = "#FF1493", "No" = "#87CEEB"))
+
+bar_plots_yes
 ```
 
-## visualising continuous data
+::: Callout-note
+Similar to the bar charts in section 3.1, there is no *sole risk factor* which stands out in the categorical variables which lead to high occurrence in the youth population.
+:::
+
+### 3.2 Visualising Distribution of the Continuous Variables
+
+The following codes is to prepared the data to plot histogram to visualise the continuous data.
+
+The data is prepared this manner so that it will provide flexibility in showing data.
 
 ```{r}
-# Select only the continuous columns (numeric)
-contin_col_HA <- HA %>% select(where(is.numeric), Heart_Attack_Occurrence, Age_Grp)
+contin_col_HA <- heart %>% select(where(is.numeric), Heart_Attack_Occurrence, Age_Grp)
 
+contin_col_HA_youth <- filter(contin_col_HA, Age_Grp == "Youth")  
+
+contin_col_HA_Yes <- filter(contin_col_HA, Heart_Attack_Occurrence == "Yes")
 
 contin_col_HA_Long<-contin_col_HA %>%
   pivot_longer(cols = -c(Heart_Attack_Occurrence, Age_Grp), names_to = "Field", values_to = "Value")
                
-contin_col_HA_Long_Yes <- filter(contin_col_HA_Long, Heart_Attack_Occurrence == "Yes")              
+contin_col_HA_Long_Yes <- filter(contin_col_HA_Long, Heart_Attack_Occurrence == "Yes")
+
+contin_col_HA_Long_youth <- filter(contin_col_HA_Long, Age_Grp == "Youth")  
 ```
 
-```{R}
-# Create histograms with density plots for continuous variables
-histograms <- ggplot(contin_col_HA_Long, aes(x = Value, fill = Heart_Attack_Occurrence )) + 
+```{r}
+#| fig-width: 10 #to widen the space
+#| fig-height: 6 #to lengthen the graph
+
+histograms_HA <- ggplot(contin_col_HA_Long, aes(x = Value, fill = Heart_Attack_Occurrence )) + 
   geom_histogram(binwidth = 1, alpha = 0.8) + 
   theme_minimal() + 
-  labs(title = "Histograms of Continuous Fields", x = "Value", y = "Frequency")+
-  facet_wrap(~ Field, scales = "free") 
+  labs(title = "Histograms of Continuous Variables", y = "Frequency")+
+  facet_wrap(~ Field, scales = "free") +
+  scale_fill_manual(values = c("Yes" = "red", "No" = "#4682B4"))
 
-# Print the histograms
-print(histograms)
+histograms_HA
+
 ```
 
-```{R}
-# Create histograms with density plots for continuous variables
-histograms <- ggplot(contin_col_HA_Long_Yes, aes(x = Value, fill = Age_Grp )) + 
+::: Callout-note
+To visualise the continuous variables, the continuous variables were plotted using the Heart data without re-coding. This is to allow us to be able to view this distribution of the continuous variables.
+
+Based on the histogram, the distribution of of the continuous variables for BMI, Cholesterol Level, Diastolic and Systolic blood pressure, stress levels and heart rate seems to be over normal distribution. The overall trend is similar between across the subjects regardless if they had or had not have a heart attack.
+:::
+
+#### 3.2.1 Closer look and the Youth Age Group
+
+```{r}
+#| fig-width: 10 #to widen the space
+#| fig-height: 6 #to lengthen the graph
+
+histograms_HA_youth <- ggplot(contin_col_HA_Long_youth, aes(x = Value, fill = Heart_Attack_Occurrence )) + 
   geom_histogram(binwidth = 1, alpha = 0.8) + 
   theme_minimal() + 
-  labs(title = "Histograms of Continuous Fields", x = "Value", y = "Frequency")+
-  facet_wrap(~ Field, scales = "free") 
+  labs(title = "Histograms of Continuous Variables", y = "Frequency")+
+  facet_wrap(~ Field, scales = "free") +
+  scale_fill_manual(values = c("Yes" = "#FF1493", "No" = "#87CEEB"))
 
-# Print the histograms
-print(histograms)
+histograms_HA_youth
 ```
 
-### visualising using density plot
+::: Callout-note
+Comparing the occurrence of heart attack in youth, it follows the same distribution as the over all data. It was noted that similar to the overall data, there resembles the normality in the BMI, Cholesterol, Diastolic and systolic blood pressure, heart rate and stress levels.
 
-```{r}
-# Adding density plot
-ggplot(HA, aes(x = Stress_Levels)) +
-  geom_histogram(aes(y = ..density..), binwidth = 1, fill = "blue", alpha = 0.5) +
-  geom_density(color = "red", size = 1) +
-  labs(title = "Histogram and Density Plot of Stress Levels", x = "Stress Levels", y = "Density")
-```
+This maybe logical as these variables are measure of bodily vitals or measurements, and due to homostasis the self regulating ability of the human body it will be normal to be peak in the center.
 
-### Chi Square
-
-```{r}
-ggbarstats(HA, 
-           x=Age_Grp,
-           y=Heart_Attack_Occurrence)
-```
-
-```{r}
-ggbarstats(HA, 
-           x=Event_Grp,
-           y=Region)
-```
-
-```{r}
-ggbarstats(HA_youth, 
-           x= Heart_Attack_Occurrence,
-           y=BMI_cat)
-```
+Hence to better understand variables, it may be more meaning for categorszed them into established bench marks such as what if the rest heart rate above 100 is considered as elevated.
+:::
 
 ```{r}
 
-# Select categorical columns
-categorical_columns <- HA_youth %>% select(where(~is.character(.) || is.factor(.)))
+#| fig-width: 24 #to widen the space
+#| fig-height: 24 #to lengthen the graph
 
-# Function to perform Chi-Square test and visualize the results
+HA_youth %>%
+  ExpNumViz(target = "Heart_Attack_Occurrence",
+            nlim=10,
+            Page=c(2,4))
+
+
+```
+
+::: Callout-note
+Besides histogram, given that the distribution is resemble normal distribution, boxplot could be useful type of chart to visualise if there are any differences across the variables. It was noted that there maybe slight differences in stress levels between the youth with heart attack verse youth without heart attack.
+:::
+
+## 4.0 Confirmatory Data Analysis (CDA)
+
+### 4.1 Chi Square test for youth data
+
+Due to there is no trend observed by examining the barcharts, the chi square was ran using all variables.
+
+After running the above associative test, the following code chunk to carry out the chi-square test to find our variables with association between heart attacks and categorical variables. The following codes on how to perform chi-square is generated using co-pilot.
+
+```{r}
 analyze_association <- function(data, x, y) {
   # Perform Chi-Square test
   table <- table(data[[x]], data[[y]])
@@ -302,26 +480,364 @@ analyze_association <- function(data, x, y) {
   # Print Chi-Square test results
   print(paste("Chi-Square Test between", x, "and", y))
   print(chi_test)
-  
-  # Visualize the results using bar plot
-  plot <- ggplot(HA_youth, aes_string(x = x, fill = y)) +
-    geom_bar(position = "dodge") +
-    labs(title = paste("Bar Plot of", x, "vs", y, "\nChi-Square p-value:", format(chi_test$p.value, digits=4)),
-         x = x,
-         y = "Count") +
-    theme_bw()
-  
-  print(plot)
 }
 
-# Analyze association for each categorical column with Event_Grp
+# Analyze association for each categorical column with Heart_Attack_Occurrence
 for (column in colnames(categorical_columns)) {
-  if (column != "Heart_Attack_Occurrence") { # Skip Event_Grp column itself
-    analyze_association(HA_youth, "Heart_Attack_Occurrence", column)
+  if (!(column %in% c("Heart_Attack_Occurrence", "Event_Grp", "Age_Grp")))  
+    analyze_association(HA_youth, column, "Heart_Attack_Occurrence")
   }
+
+
+
+```
+
+### 4.2 Significant Test of Association (Dependence) : ggbarstats() methods
+
+```{r}
+
+
+A_HA_youth_BMI <- ggbarstats(HA_youth, 
+           x=BMI_cat,
+           y=Heart_Attack_Occurrence)
+
+A_HA_youth_Dia <- ggbarstats(HA_youth, 
+           x=Diabetes_History,
+           y=Heart_Attack_Occurrence)
+
+
+```
+
+```{r}
+
+#| eval: false
+#| fig-width: 120 #to widen the space
+#| fig-height: 120 #to lengthen the graph
+
+Patchwork_sig <- (A_HA_youth_Dia | A_HA_youth_BMI)
+
+
+Patchwork_sig 
+```
+
+::: Callout-note
+Using the ggbarstats, we are able to view the associations between diabetes history and BMI verse heart attack occurrence in youth.
+
+For **Diabetes history**, it is clear that youth with diabetes history have higher association or may have high risk with heart attack as compared to youth without diabetes in the past.
+
+For the **BMI category**, while the statistical test seems that BMI category may be significant, however it seems like the proportion of youth with normal BMI may result in high proportion of youth has heart attack. While it is consistent with general knowledge, it is noted the youth who are underweight has slightly less association of having heart attack.
+
+Further analysis using logistic regression would be required to further understand the relationship.
+:::
+
+### 4.3 Chi Square for subjects with heart attack of the two different age group
+
+```{r}
+analyze_association <- function(data, x, y) {
+  # Perform Chi-Square test
+  table <- table(data[[x]], data[[y]])
+  chi_test <- chisq.test(table)
+  
+  # Print Chi-Square test results
+  print(paste("Chi-Square Test between", x, "and", y))
+  print(chi_test)
 }
 
+# Analyze association for each categorical column with Heart_Attack_Occurrence
+for (column in colnames(categorical_columns)) {
+  if (!(column %in% c("Heart_Attack_Occurrence", "Event_Grp", "Age_Grp")))  
+    analyze_association(HA_Yes, column, "Age_Grp")
+}
 
+```
+
+::: Callout-note
+Based on chi square test, there no statistically significant variables for the between the categorical variables and age group. Hence the earlier observations in section 3.1.1 are not valid.
+:::
+
+### 4.5 Anova performed on the youth group.
+
+Anova is performed to test the differences in true mean across continous variables for the youth with heart attack and without heart attack. The following code is steamlined with the help of Microsoft co-pilot.
+
+```{r}
+perform_anova <- function(data, group_var, continuous_vars) {
+  results <- list()
+  
+  for (var in continuous_vars) {
+    print(paste("Performing ANOVA for", var, "by", group_var))
+    anova_result <- summary(aov(as.formula(paste(var, "~", group_var)), data = data))
+    results[[var]] <- anova_result
+    print(anova_result)
+  }
+  
+  return(results)
+}
+
+# List of continuous variables
+continuous_vars <- c("BMI", "Cholesterol_Level", "Stress_Levels", "Heart_Rate", "Systolic_BP", "Diastolic_BP")
+
+# Perform ANOVA for each continuous variable in the Youth group
+anova_results <- perform_anova(contin_col_HA_youth, "Heart_Attack_Occurrence", continuous_vars)
+
+```
+
+#### 4.5.1 Oneway ANOVA Test: ggbetweenstats() method
+
+```{r}
+stress <- ggbetweenstats(
+  data = HA_youth,
+  x = Heart_Attack_Occurrence, 
+  y = Stress_Levels,
+  type = "p",
+  mean.ci = TRUE, 
+  pairwise.comparisons = TRUE, 
+  pairwise.display = "s",
+  p.adjust.method = "fdr",
+  messages = FALSE
+)
+
+stress
+```
+
+::: callout-note
+Based on the anova results, there is statistically significant differences in the stress levels between youth with heart attack verse youth whom have not had heart attack.
+
+However, it is noted that there small effect size (Hedges' g = 0.09) suggests that although the difference is statistically significant, but the small effect may not may not be large enough to have meaningful implications in a real-world context.
+
+As the stress level maybe derived from Likert kind of survey, it maybe meaningful to categorise it to the different levels and analyse using logistic regression model. This had been done in section 2.6
+:::
+
+## 5.0 Model building
+
+Due to the lack of observable trends from CDA and EDA, explanatory model is build to further analysis if there are other variables, besides Stress level, BMI categories and Diabetes history, a logistic model is built to further analyse the data set for trends.
+
+### 5.1 Logistic Regression Model
+
+```{r}
+# Fit the model
+model_log_youth <- glm(Heart_Attack_Occurrence_num  ~ Gender_num + Region_num + Smoking_History_num + Diabetes_History_num + Physical_Activity_num + Diet_Quality_num + Alcohol_Consumption_num + Stress_Level_cat_num + BMI_cat_num + Heart_Rate_cat_num + BP_cat_num +Family_History_num + Cholesterol_Level_cat_num, family = binomial(), data = HA_youth)
+
+# View the summary
+summary(model_log_youth)
+```
+
+```{r}
+exp(coef(model_log_youth))
+```
+
+```{r}
+#| eval: false
+#| fig-width: 24 #to widen the space
+#| fig-height: 24 #to lengthen the graph
+
+# Check collinearity
+check_c <- check_collinearity(model_log_youth)
+
+# Print the collinearity check results
+print(check_c)
+
+# Plot collinearity diagnostics
+plot(check_c)
+```
+
+```{r}
+confint.default(model_log_youth)
+```
+
+```{r}
+library(caret)
+predictions <- predict(model_log_youth, type = "response")
+predicted_classes <- ifelse(predictions > 0.5, 1, 0)
+confusionMatrix(as.factor(predicted_classes), as.factor(HA_youth$Heart_Attack_Occurrence_num))
+```
+
+### 5.2 Variables important
+
+```{r}
+# Extract coefficients from the model
+coef_data <- as.data.frame(coef(summary(model_log_youth)))
+coef_data$Feature <- rownames(coef_data)
+rownames(coef_data) <- NULL
+
+# Plot the coefficients
+library(ggplot2)
+ggplot(coef_data, aes(x = reorder(Feature, Estimate), y = Estimate)) +
+  geom_bar(stat = "identity", fill = "#FF1493") +
+  coord_flip() +
+  labs(title = "Feature Importance (Logistic Regression Coefficients)",
+       x = "Feature",
+       y = "Coefficient Estimate") +
+  theme_minimal()
+```
+
+::: Callout-note
+The model results show that stress level and diabetes history are statically significant in leading to higher risk of heart attack in youth.
+
+Besides two two variables, it seems that Diet quality may also play a role in leading heart attack in Japanese youth, although the significant level at 0.1 which is more than the standard 0.05.
+:::
+
+#### 5.2.1 other codes in looking into model parameters (should not be include in the assignment counts) 
+
+```{r}
+library(caret)
+predictions <- predict(model_log_youth, type = "response")
+predicted_classes <- ifelse(predictions > 0.5, 1, 0)
+confusionMatrix(as.factor(predicted_classes), as.factor(HA_youth$Heart_Attack_Occurrence_num))
+```
+
+```{r}
+set.seed(123)
+train_indices <- sample(1:nrow(HA_youth), 0.7 * nrow(HA_youth))
+train_data <- HA_youth[train_indices, ]
+test_data <- HA_youth[-train_indices, ]
+
+# Fit the model on the training data
+model_train <- glm(Heart_Attack_Occurrence_num ~ Gender_num + Region_num + Smoking_History_num + Diabetes_History_num + Physical_Activity_num + Diet_Quality_num + Alcohol_Consumption_num + Stress_Level_cat_num + BMI_cat_num + Heart_Rate_cat_num + BP_cat_num + Family_History_num + Cholesterol_Level_cat_num, family = binomial(), data = train_data)
+
+# Predict on the test data
+test_predictions <- predict(model_train, newdata = test_data, type = "response")
+test_predicted_classes <- ifelse(test_predictions > 0.5, 1, 0)
+
+# Evaluate the model on the test data
+confusionMatrix(as.factor(test_predicted_classes), as.factor(test_data$Heart_Attack_Occurrence_num))
+
+```
+
+```{r}
+#| eval: false
+ggcoefstats(model_log_youth, 
+            output = "plot")
+```
+
+```{r}
+
+AIC(model_log_youth )
+```
+
+## 6.0 Final charts and conclusion
+
+::: Call-note
+With acknowledge of the how the variables related to the occurrence of heart attack, in this section, we will do up the charts to visually show the relationship between the variables and heart attack in youth.
+
+Since the earlier charts has already compared the main group of of interest youth with heart attack, with adults with heart attack and youth without heart attack. This section is dedicated to show visualise the relationship of the variables within the group
+:::
+
+```{r}
+
+P1 <-ggplot(data=HA_youth_yes, 
+            aes(x= BMI, 
+                y= Stress_Levels, 
+                color=Diabetes_History)) +
+  geom_point(size=1) +
+  coord_cartesian(xlim=c(5,40),
+                  ylim=c(0,11))
+
+P2<- ggMarginal(P1, type = "boxplot",
+           groupColour = TRUE, 
+           groupFill = TRUE)+ theme_minimal()
+```
+
+```{r}
+
+P3 <-ggplot(data=HA_youth_yes,
+       aes(x = Diabetes_History , y = Stress_Levels, color = Diet_Quality )) +
+    geom_boxplot()+
+  facet_wrap(~ BMI_cat)+ theme_minimal()
+
+```
+
+```{r}
+P4<-ggplot(HA_youth_yes, 
+       aes(x = Diabetes_History, y = Stress_Levels)) +
+  stat_halfeye(adjust = 0.5,
+               justification = 0.1,
+               .width = 0,
+               point_colour = NA) +
+  stat_dots(side = "left", 
+            justification = 1.1, 
+            binwidth = .5,
+            dotsize = 0.05)
+  #coord_flip() +
+  theme_economist()
+```
+
+```{r}
+
+
+#| fig-width: 24 #to widen the space
+#| fig-height: 24 #to lengthen the graph
+
+Patchwork <- P4 |P3
+
+Patchwork
+```
+
+::: Callout-note
+After establishing the following:
+
+-Stress Level and Diabetes History have statistically significant related to incidents of heart attack in youth using the logistic regression model. Although diet history may not have statistically significant, but is worthwhile to explore its relationship with other variables.
+
+-there is statistically significant differences in true group mean in stress level between youth whom had heart attack and without heart attack.
+
+-the various BMI categories seem to have statically significant associations in relation of heart attack, proven using chi square.
+
+The 4 variables of the ***youth whom had heart attack*** plotted using the half eye chart, box plot across the BMI categories to further analyse the relationships among the mentioned variables.
+
+**Observation**
+
+As mentioned in section 5, that the logistic regression, that the stress level is by Likert scale as the data is discrete instead of continuous as shown in the dot stats chart. Based on the chart, we can see the youth with higher stress level had diabetes before as compared to those who has not have diabetes before.
+
+This trend could be further showed by the box plot on the right. The boxplot is facet across the various BMI categories.
+
+At a quick glance, we could see obese youth whom had heart attack, has highest stress level. This particular group of youth also had the poor diet quality and diabetes before.
+
+It was also noted there are overall higher stress level in overweight and obese youths as compared to those with normal BMI or underweight.
+
+Among the youths, it was also noted. that two groups with the highest stress level are the obese and overweight youths with poor diet quality.
+
+Further analysis could be carried out to further explore characteristic of Japanese Youth whom had heart attack. It is important to note that more information on the data set would be require before further conclusion could be drawn
+
+**Conclusion**
+
+Learning points from this take home exercise is that data visualising is not direct. It requires student or analyst to have a throughout understanding of the data set before the analyst could make use of the tools to present the data in a accurate and simplify manner which allow viewers to be able to see the trend of the data set.
+:::
+
+### 7.0 Other Charts and visualisation tools used.
+
+As part of the learning journey, there are may other charts tried to visualise the data. However due to the assignment limit, they are not added to the main part of the assessment.
+
+##### Histogram to compare subjects with heart attack in youth and adults
+
+```{R}
+
+histograms <- ggplot(contin_col_HA_Long_Yes, aes(x = Value, fill = Age_Grp )) + 
+  geom_histogram(binwidth = 1, alpha = 0.8) + 
+  theme_minimal() + 
+  labs(title = "Histograms of Continuous Fields", y = "Frequency")+
+  facet_wrap(~ Field, scales = "free") 
+
+# Print the histograms
+print(histograms)
+```
+
+##### visualizing using density plot to further understand stress level
+
+```{r}
+# Adding density plot
+ggplot(HA_youth, aes(x = Stress_Levels)) +
+  geom_histogram(aes(y = ..density..), binwidth = 1, fill = "blue", alpha = 0.5) +
+  geom_density(color = "red", size = 1) +
+  labs(title = "Histogram and Density Plot of Stress Levels", x = "Stress Levels", y = "Density")
+```
+
+##### Correlation plots
+
+```{r}
+HA.cor <- cor(HA_youth_yes[, c(7, 11:15)], use = "complete.obs")
+```
+
+```{r}
+corrplot(HA.cor)
 ```
 
 ```{r}
@@ -336,67 +852,11 @@ ggplot(HA, aes(x = Stress_Levels, fill = Heart_Attack_Occurrence)) +  # Map fill
   scale_fill_brewer(palette = "Set2", name = "Heart Attack Occurrence") +  # Use a color palette for filling
   theme(legend.position = "top")  # Position the legend at the top
 
-
 ```
 
 ```{r}
-
-# Create individual boxplots for each continuous field
-#individual_boxplots <- 
-  #ggplot(HA, aes(x = Field, y = Value, fill = Heart_Attack_Occurrence)) +
-  #geom_boxplot() +
-  #facet_wrap(~ Field, scales = "free") +
-  #theme_minimal() +
-  #labs(title = "Boxplots of Continuous Fields",
-       #x = "Field",
-       #y = "Value")
-
-# Print the individual boxplots
-#print(individual_boxplots)
-```
-
-```{r}
-summary(HA_Yes)
-```
-
-```{r}
-ggplot(data=HA,
-       aes(x =  Alcohol_Consumption, y = Cholesterol_Level, color =Heart_Attack_Occurrence )) +
-    geom_boxplot()+
-  facet_wrap(~ Age_Grp)
-```
-
-```{r}
-
-ggplot(data=HA_Yes,
-       aes(x = Diet_Quality, y = BMI, color = Age_Grp)) +
-    geom_boxplot()+
-  facet_wrap(~ Region)
-
-```
-
-```{r}
-
-#| fig-width: 24 #to widen the space
-#| fig-height: 24 #to lengthen the graph
-ggplot(HA_youth, 
-       aes(x = Heart_Attack_Occurrence, y = BMI)) +
-  stat_halfeye(adjust = 0.5,
-               justification = -0.01,
-               .width = 0.01,
-               point_colour = NA, 
-               size=0.01) +
-  geom_boxplot(width = .05,
-               outlier.shape = NA) +
-  stat_dots(side = "left", 
-            justification = 1.2, 
-            binwidth = .5,
-            dotsize = .1)
-```
-
-```{r}
-scatter_plot <- ggplot(HA, aes(x = Cholesterol_Level, y = BMI, color = Heart_Attack_Occurrence)) +
-  geom_point(size = 2, alpha = 0.5) +  # Adjust point size and transparency
+scatter_plot <- ggplot(HA, aes(x = Stress_Levels, y = BMI, color = Heart_Attack_Occurrence)) +
+  geom_point(size = 1, alpha = 0.4) +  # Adjust point size and transparency
   labs(title = "Scatter Plot of Stress Levels vs. BMI",
        x = "Stress Levels",
        y = "BMI",
@@ -410,34 +870,6 @@ print(scatter_plot)
 ```
 
 ```{r}
-# Step 1: Select only continuous (numeric) columns along with Heart_Attack_Occurrence
-continuous_columns <- HA %>% 
-  select(where(is.numeric), Heart_Attack_Occurrence)
-
-# Step 2: Reshape the data to long format
-long_data <- continuous_columns %>%
-  pivot_longer(-Heart_Attack_Occurrence, names_to = "Variable", values_to = "Value")
-
-# Step 3: Create scatter plots for each continuous variable against Heart_Attack_Occurrence
-scatter_plot <- ggplot(long_data, aes(x = Value, y = as.numeric(Heart_Attack_Occurrence), color = Heart_Attack_Occurrence)) +
-  geom_point(alpha = 0.7, size = 2) +  # Adjust point size and transparency
-  facet_wrap(~ Variable, scales = "free") +  # Create facets for each variable
-  labs(title = "Scatter Plots of Continuous Variables by Heart Attack Occurrence",
-       x = "Value",
-       y = "Heart Attack Occurrence (0 = No, 1 = Yes)") +  # y-axis represents occurrence
-  theme_minimal(base_size = 14) +  # Clean theme
-  scale_color_manual(values = c("blue", "red"))  # Customize colors for heart attack occurrence
-
-# Print the scatter plots
-print(scatter_plot)
-
-# Print the scatter plots
-print(scatter_plot)
-```
-
-### Inspiration
-
-```{r}
 ggplot(HA, aes(x = Smoking_History, fill = Heart_Attack_Occurrence)) +
   geom_bar(position = "fill") +
   labs(title = "Smoking History vs Heart Attack Occurrence", 
@@ -446,68 +878,6 @@ ggplot(HA, aes(x = Smoking_History, fill = Heart_Attack_Occurrence)) +
   scale_fill_manual(values = c("lightblue", "salmon"), name = "Heart Attack Occurrence")
 ```
 
-### Anova
+#### Disclaimer
 
-```{r}
-ggbetweenstats(
-  data = HA_youth,
-  x = Heart_Attack_Occurrence, 
-  y = Stress_Levels,
-  type = "p",
-  mean.ci = TRUE, 
-  pairwise.comparisons = TRUE, 
-  pairwise.display = "s",
-  p.adjust.method = "fdr",
-  messages = FALSE
-)
-```
-
-```{r}
-ggbetweenstats(
-  data = HA_youth,
-  x = Heart_Attack_Occurrence, 
-  y = BMI,
-  type = "p",
-  mean.ci = TRUE, 
-  pairwise.comparisons = TRUE, 
-  pairwise.display = "s",
-  p.adjust.method = "fdr",
-  messages = FALSE
-)
-```
-
-
-
-::: callout-note
-
-The very small effect size (Hedges' g = 0.04) suggests that although the difference is statistically significant, it may not be practically relevant. In other words, the difference in means may not be large enough to have meaningful implications in a real-world context.
-
-:::
-
-### Model building
-
-```{r}
-model <- lm(Heart_Attack_Occurrence_num ~ Cholesterol_Level_cat + BMI_cat + Diabetes_History, data = HA_youth)
-model
-
-```
-
-```{r}
-check_n <- check_normality(model)
-plot(check_n)
-```
-
-```{r}
-check_h <- check_heteroscedasticity(model)
-
-plot(check_h)
-```
-
-```{r}
-check_model(model)
-
-```
-
-### Conclusion:
-
-The health crsis of heart attack is largely depended on the possibility
+This take home exercise was done with reference to methods in Prof Kam's e text book https://r4va.netlify.app/ , materials on R available online and the use of Microsoft co-pilot to troubleshoot syntax errors and streamline codes.

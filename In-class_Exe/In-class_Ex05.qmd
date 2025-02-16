@@ -18,13 +18,18 @@ pacman::p_load(tidyverse, readxl, SmartEDA, easystats,gtsummary, ggstatsplot)
 
 ### Importing Data
 ```{r}
-car_resale <-
+car_resale_org <-
   read_xls("data/In_Class_Ex05/ToyotaCorolla.xls", "data")
 ```
 
 ```{r}
 summary(car_resale)
 ```
+
+```{r}
+summary(car_resale_org)
+```
+
 ```{r}
 list(car_resale)
 ```
