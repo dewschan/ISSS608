@@ -1,0 +1,21 @@
+---
+title: "Project data preparation"
+author: "Dew Stella Chan"
+date: "2025-02-01"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+---
+
+
+```{r}
+pacman::p_load(tidyverse)
+```
+
+```{r}
+weather<- read_csv("data/combined_weather_data.csv")
+```
+

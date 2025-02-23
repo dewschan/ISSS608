@@ -1,0 +1,15 @@
+{
+  "hash": "01127994644c7c8d6f6b1df8bac3a6d3",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Project data preparation\"\nauthor: \"Dew Stella Chan\"\ndate: \"2025-02-01\"\ndate-modified: \"last-modified\"\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n---\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(tidyverse)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nweather<- read_csv(\"data/combined_weather_data.csv\")\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

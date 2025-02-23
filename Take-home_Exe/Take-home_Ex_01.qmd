@@ -676,7 +676,7 @@ The model results show that stress level and diabetes history are statically sig
 Besides two two variables, it seems that Diet quality may also play a role in leading heart attack in Japanese youth, although the significant level at 0.1 which is more than the standard 0.05.
 :::
 
-#### 5.2.1 other codes in looking into model parameters (should not be include in the assignment counts) 
+#### 5.2.1 other codes in looking into model parameters (should not be include in the assignment counts)
 
 ```{r}
 library(caret)
