@@ -9,3 +9,276 @@ execute:
   warning: false
   freeze: true
 ---
+
+This page document the data visualisation and analysis carried out for th Take-Home Exercise 02.
+
+## 1.0 Scope:
+
+The tasks for this take home exercise are to:
+
+-   comment on the pros and cons of three data visualisations on this [page](https://www.singstat.gov.sg/modules/infographics/singapore-international-trade) and provide sketches of the make-over
+
+-   use appropriate ggplot2 and others packages create the make-over of the three data visualisations commented above
+
+-   analyse the data with either time-series analysis or time-series forecasting methods by compliment the analysis with appropriate data visualisation methods and R packages.
+
+## 2.0 Libraries:
+
+-   The following libraries are used to complete the following exercise:
+
+lubidate is being used
+
+```{r}
+pacman::p_load(tidyverse, readxl,  tsibble, feasts, fable, seasonal, ggplot2, scales, ggiraph, reshape2)
+```
+
+reshape2 –\> used to melt the data for stacked bar chart
+
+## 3.0 Data sets:
+
+The data sets used for this exercise are the "Merchandise Trade by Region/ Market" from Singstats which could be download from this [page](https://www.singstat.gov.sg/find-data/search-by-theme/trade-and-investment/merchandise-trade/latest-data).
+
+### 3.1 Importing Data sets
+
+The datasets are imported using the function read_xlsx from readxl package.
+
+```{r}
+import_r <-read_xlsx("data/Ex02/MerchandiseTradebyRegion.xlsx", "T1")
+
+export_r <- read_xlsx("data/Ex02/MerchandiseTradebyRegion.xlsx", "T2")
+
+re_export_r <- read_xlsx("data/Ex02/MerchandiseTradebyRegion.xlsx", "T3")
+
+```
+
+### 3.0 Data Preparation:
+
+The following steps were done to transform the data for make-over and time series analysis.
+
+```{r}
+head(import_r)
+```
+
+```{r}
+# Ensure 'Data Series' is character type
+import_r$`Data Series` <- as.character(import_r$`Data Series`)
+
+# Creating a new data frame with 'Data Series' as row names
+import <- import_r %>% column_to_rownames(var = "Data Series")
+
+transposed_import <- as.data.frame(t(import))
+```
+
+```{r}
+# Add the row names as a new column
+transposed_import <- transposed_import %>% rownames_to_column(var = "Year_Month")
+
+# Set sequential row names
+rownames(transposed_import) <- seq_len(nrow(transposed_import ))
+
+```
+
+```{r}
+# Convert the 'Year_Month' column to date-time format
+transposed_import$`Year_Month` <- parse_date_time(transposed_import$`Year_Month`, orders = "ym")
+
+transposed_import$`Year_Month` <- format(transposed_import$`Year_Month`, "%b %Y")
+
+transposed_import <- transposed_import %>%
+  rename(Month_Year = Year_Month, Total_imports = `Total All Markets`)
+
+# Print the updated data frame
+print(transposed_import)
+```
+
+```{r}
+
+yearly_import<- transposed_import
+
+yearly_import$Month_Year <- parse_date_time(yearly_import$Month_Year, orders = "my")
+
+# Convert 'Month_Year' to a date format and filter incomplete data, 2003 and 2025 does not have 12 months of data, hence they will not be used.
+yearly_import <- yearly_import %>%
+  filter(`Month_Year` <= ymd("2024-12-01") & `Month_Year` >= ymd("2004-01-01"))
+
+# Extract the year and add it as a new column
+yearly_import$Year <- year(yearly_import$`Month_Year`)
+
+# Summarize the values by year
+yearly_import <- yearly_import %>%
+  group_by(Year) %>%
+  summarise(across(-Month_Year, sum, na.rm = TRUE))
+
+```
+
+### Transforming Export data.
+
+The total export amount includes both the export data from worksheet "T2"- Export and T3"- re-export.
+
+Te following code check is to select the numeric figures and suming them accordingly if they are they consist of the same dimension and assuming the arrangment of the values are the same.
+
+```{r}
+if (all(dim(export_r) == dim(re_export_r))) {
+  summed_df <- export_r %>%
+    mutate(across(where(is.numeric), ~ . + re_export_r[[cur_column()]]))
+  non_numeric_cols <- export_r %>%
+    select(where(~!is.numeric(.)))
+  
+ combined_export <- bind_cols(non_numeric_cols, summed_df %>% select(where(is.numeric)))
+  print(combined_export)
+} else {
+  cat("The data frames do not have the same dimensions and cannot be summed element-wise.\n")
+}
+```
+
+```{r}
+# Ensure 'Data Series' is character type
+combined_export$`Data Series` <- as.character(export_r$`Data Series`)
+
+# Creating a new data frame with 'Data Series' as row names
+combined_export<- combined_export %>% column_to_rownames(var = "Data Series")
+
+transposed_export <- as.data.frame(t(combined_export))
+
+
+# Add the row names as a new column
+transposed_export <- transposed_export  %>% rownames_to_column(var = "Year_Month")
+
+# Set sequential row names
+rownames(transposed_export ) <- seq_len(nrow(transposed_export))
+
+# Convert the 'Year_Month' column to date-time format
+transposed_export$`Year_Month` <- parse_date_time(transposed_export$`Year_Month`, orders = "ym")
+
+transposed_export$`Year_Month` <- format(transposed_export$`Year_Month`, "%b %Y") 
+
+transposed_export <- transposed_export %>%
+  rename(Month_Year = Year_Month, Total_exports = `Total All Markets`)
+
+```
+
+```{r}
+yearly_export<- transposed_export
+
+yearly_export$Month_Year <- parse_date_time(yearly_export$Month_Year, orders = "my")
+
+# Convert 'Month_Year' to a date format and filter incomplete data, 2003 and 2025 does not have 12 months of data, hence they will not be used.
+yearly_export <- yearly_export %>%
+  filter(`Month_Year` <= ymd("2024-12-01") & `Month_Year` >= ymd("2004-01-01"))
+
+# Extract the year and add it as a new column
+yearly_export$Year <- year(yearly_export$`Month_Year`)
+
+# Summarize the values by year and remove the month_year column. 
+yearly_export <- yearly_export %>%
+  group_by(Year) %>%
+  summarise(across(-Month_Year, sum, na.rm = TRUE))
+
+# Print the summarized data frame
+print(yearly_export )
+
+
+# Combine the total imports and total exports into one data frame
+combined_data <- yearly_import %>%
+  inner_join(yearly_export, by = "Year")
+
+# Print the combined data frame
+print(combined_data)
+
+```
+
+### Preparation for Total Merchandis trade dataframe
+
+```{r}
+# Extract the 'Total_imports' column
+total_imports_summary <- yearly_import %>% select(Year, Total_imports)
+
+
+# combining total import and export column
+combined_summary <- yearly_export %>% 
+  select(Year, Total_exports) %>% 
+  inner_join(total_imports_summary, by = "Year")
+
+# Print the combined summary
+print(combined_summary)
+
+```
+
+### code for year on year percentage changes.
+
+```{r}
+
+# Add a 'Total Trade' column to the combined summary
+combined_summary <- combined_summary %>%
+  mutate(Total_Trade = Total_imports + Total_exports)
+
+
+#Calculate the YoY percentage change for 'Total_imports', 'Total_exports', and 'Total Trade'
+combined_summary <- combined_summary %>%
+  arrange(Year) %>%
+  mutate(
+    YoY_imports_change = (Total_imports / lag(Total_imports) - 1) * 100,
+    YoY_exports_change = (Total_exports / lag(Total_exports) - 1) * 100,
+    YoY_trade_change = (Total_Trade / lag(Total_Trade) - 1) * 100
+  )
+
+# Print the updated combined summary data frame
+print(combined_summary)
+```
+
+Total_trade \<- import_r %\>% slice(1)
+
+# Extract the first row and rename the value in the 'Data Series' column
+
+Total_trade \<- import_r %\>% slice(1) %\>% mutate ()
+
+mutate(Heart_Attack_Occurrence_num = case_when( Heart_Attack_Occurrence == "Yes" \~ 1 \`\`\`
+
+## Make-over 1:
+
+1 ) while the chart is colorful and looks nice however it is difficult to see the rate of change in total trade.
+
+a simpler graph could be used and with more least sophisticated graphic could be used. to deliver the key message that there were 6.6% increase in the total trade amount for year 2024.
+
+![](images/clipboard-3391151904.png)
+
+```{r}
+combined_summary_melt <- melt(combined_summary, id.vars = "Year", measure.vars = c("Total_imports", "Total_exports"))
+combined_summary_melt$tooltip <- c(paste0(combined_summary_melt$Year," ," ,combined_summary_melt$value))
+
+combined_summary$tooltip <- c(paste0(combined_summary$Year," ," ,combined_summary_melt$'YoY Trade Change', "%"))
+```
+
+
+```{r}
+p <- ggplot() +
+  geom_bar_interactive(data = combined_summary_melt, aes(x = Year, y = value, fill = variable, tooltip = tooltip), stat = "identity") +
+  geom_line_interactive(data = combined_summary, aes(x = Year, y = YoY_trade_change * 0.5 * max(combined_summary$Total_Trade) / 100, group = 1, color = "YoY Trade Change", tooltip = tooltip), size = 1) +
+  geom_point_interactive(data = combined_summary, aes(x = Year, y = YoY_trade_change * 0.5 * max(combined_summary$Total_Trade) / 100, color = "YoY Trade Change", tooltip = tooltip), size = 2) +
+  scale_fill_manual(values = c("Total_imports" = "skyblue", "Total_exports" = "orange"), name = "Trade Type") +
+  scale_color_manual(values = c("YoY Trade Change" = "red"), name = "Percentage Change") +
+  scale_y_continuous(
+    labels = comma,
+    name = "Total Value",
+    sec.axis = sec_axis(~ . * 200 / max(combined_summary$Total_Trade), name = "YoY Percentage Change")
+  ) +
+  labs(
+    title = "Stacked Bar Chart of Import and Export with YoY Percentage Change",
+    x = "Year",
+    fill = "Trade Type",
+    color = "Percentage Change"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title.y.right = element_text(vjust = -0.5),  # Adjust vertical position of right y-axis title
+    axis.title.y = element_text(vjust = 1.5)          # Adjust vertical position of left y-axis title
+  )
+
+# Render the interactive plot
+girafe(
+  ggobj = p,
+  width_svg = 8,
+  height_svg = 8 * 0.618
+)
+```
+

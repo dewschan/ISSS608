@@ -11,11 +11,9 @@ execute:
   freeze: true
 ---
 
-
 ```{r}
 pacman::p_load(tidyverse, tsibble, feasts, fable, seasonal)
 ```
-
 
 ```{r}
 ts_data <- read_csv(
@@ -28,17 +26,15 @@ ts_data$`Month-Year` <- dmy(
 ```
 
 ```{r}
-ts_dataa_ts <- ts(ts_data) #indicate as time series data frame, is not tsclassibble dataframe
+ts_dataa_ts <- ts(ts_data) #indicate as time series data frame, is not tsibble dataframe
 head (ts_data)
 ```
-
 
 ```{r}
 ts_tsibble <- ts_data %>%
   mutate(Month = yearmonth(`Month-Year`)) %>%
   as_tsibble(index = `Month`)
 ```
-
 
 ```{r}
 ts_longer <- ts_data %>%
@@ -49,7 +45,6 @@ ts_longer <- ts_data %>%
 
 ```
 
-
 ```{r}
 ts_longer %>%
   filter(Country == "Vietnam") %>% #this could be one of the parameters. 
@@ -57,6 +52,7 @@ ts_longer %>%
              y = Arrivals))+
   geom_line(size = 0.5)
 ```
+
 ```{r}
 ggplot(data = ts_longer, 
        aes(x = `Month-Year`, 
@@ -88,7 +84,6 @@ tsibble_longer <- ts_tsibble %>%
                values_to = "Arrivals")
 ```
 
-
 ```{r}
 tsibble_longer %>%
   filter(Country == "Italy" |
@@ -97,6 +92,7 @@ tsibble_longer %>%
          Country == "Germany") %>% 
   gg_season(Arrivals)
 ```
+
 ```{r}
 tsibble_longer %>%
   filter(Country == "Vietnam" |
@@ -112,12 +108,14 @@ tsibble_longer %>%
          Country == "Italy") %>% 
   gg_subseries(Arrivals) #the subseries function is a cycle plot
 ```
+
 ```{r}
 tsibble_longer %>%
   filter(`Country` == "Vietnam") %>%
   ACF(Arrivals) %>% 
   autoplot()
 ```
+
 ```{r}
 tsibble_longer %>%
   filter(`Country` == "Vietnam" |
@@ -129,4 +127,3 @@ tsibble_longer %>%
 
 
 ```
-
