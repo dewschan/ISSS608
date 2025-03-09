@@ -10,15 +10,15 @@ execute:
   freeze: true
 ---
 
-This page document the data visualisation and analysis carried out for th Take-Home Exercise 02.
+This page document the data visualisation and analysis carried out for the Take-Home Exercise 02.
 
 ## 1.0 Scope:
 
 The tasks for this take home exercise are to:
 
--   comment on the pros and cons of three data visualisations on this [page](https://www.singstat.gov.sg/modules/infographics/singapore-international-trade) and provide sketches of the make-over
+-   comment on the pros and cons of three data visualisation on this [page](https://www.singstat.gov.sg/modules/infographics/singapore-international-trade) and provide sketches of the make-over.
 
--   use appropriate ggplot2 and others packages create the make-over of the three data visualisations commented above
+-   use appropriate ggplot2 and others packages create the make-over of the three data visualisations commented above.
 
 -   analyse the data with either time-series analysis or time-series forecasting methods by compliment the analysis with appropriate data visualisation methods and R packages.
 
@@ -30,19 +30,15 @@ The tasks for this take home exercise are to:
 pacman::p_load(tidyverse, readxl,  tsibble, feasts, fable, seasonal, ggplot2, scales, ggiraph, reshape2, stringr,treemap, treemapify, gifski, gapminder,plotly, gganimate)
 ```
 
-reshape2 –\> used to melt the data for stacked bar chart
-
-lubidate is being used
-
-## 3.0 Data sets:
+## 3.0 Data Sets:
 
 The data sets used for this exercise are the "Merchandise Trade by Region/ Market" and "Merchandise Trade By Commodity Section/ Division" from Singstats which could be download from this [page](https://www.singstat.gov.sg/find-data/search-by-theme/trade-and-investment/merchandise-trade/latest-data).
 
-In Section 3, it details basic data preparation steps for the data sets: Merchandise Trade by Region/ Market, and the more specific steps in data process for specific types of data visualization are documented in specified section.
+In Section 3, it details basic data preparation steps for the data sets: Merchandise Trade by Region/ Market, and the more specific steps in data process for specific types of data visualization are documented in the respective section.
 
 ### 3.1 Importing Data sets for Merchandise Trade by Region/ Market
 
-The datasets from "Merchandise Trade by Region/ Market" are imported using the function read_xlsx from readxl package.
+The data sets from "Merchandise Trade by Region/ Market" are imported using the function read_xlsx () from readxl package.
 
 ```{r}
 import_r <-read_xlsx("data/Ex02/MerchandiseTradebyRegion.xlsx", "T1")
@@ -55,9 +51,9 @@ re_export_r <- read_xlsx("data/Ex02/MerchandiseTradebyRegion.xlsx", "T3")
 
 ### 3.2 Data Preparation Merchandise Trade by Region/ Market:
 
-The following steps were done to transform the datasets for make-over and time series analysis.
+The following steps were done to transform the data sets for make-over and time series analysis.
 
-The initial attempt was to streamline the data preparation so the transformed dataset could be used for both the mark-over visualisation and time series analysis. However, in the course of the doing the assignment, it was realised that it was not possible, hence the data preparation are split up for the each make over and time series analysis.
+The initial attempt was to streamline the data preparation so the transformed data set could be used for both the make-over visualisation and time series analysis. However, in the course of the doing the assignment, it was realised that it was not possible, hence the data preparation are split up for the each make over and time series analysis.
 
 ### 3.2.1 Data Preparation for Make Over 1.
 
@@ -131,43 +127,11 @@ head(yearly_import)
 
 ```
 
-The following code chunks is for transforming the data frame to for the use of time-series however it was not being used for time series analysis.
-
-```{r}
-#| eval: false
-#| include: false
-# Identify the columns that are continents and countries
-continent_columns <- c("America", "Asia", "Europe", "Oceania", "Africa")
-country_columns <- setdiff(names(yearly_import), c("Year", continent_columns))
-
-# Transform data to long format, excluding continent columns
-long_data <- yearly_import %>%
-  pivot_longer(
-    cols = all_of(country_columns),  # Only include country columns
-    names_to = "Country",            # New column for country names
-    values_to = "Import_Value"       # New column for import values
-  )
-
-# Hardcode continent assignments
-long_data <- long_data %>%
-  mutate(
-    Continent = case_when(
-      Country %in% c("Antigua_And_Barbuda", "Argentina") ~ "America",
-      Country %in% c("China", "Japan") ~ "Asia",
-      Country %in% c("France", "Germany") ~ "Europe",
-      Country %in% c("Australia") ~ "Oceania",
-      Country %in% c("Nigeria", "Kenya") ~ "Africa",
-      TRUE ~ NA_character_
-    )
-  )
-
-```
-
 ### 3.2.1.2 Data Preparation for Export Data by market and region
 
-The total export by region and year amount includes both the export data from worksheet "T2"- Export and T3"- re-export.
+The total export by regions and years include the both amount from the export data from worksheet "T2"- Export and T3"- re-export.
 
-Te following code check is to select the numeric figures and sum them accordingly if they are they consist of the same dimension and assuming the arrangement of the values are the same.
+The following code check is to select the numeric figures and sum them accordingly if they are of the same dimension. This is assuming that the arrangement of the values are the same.
 
 ```{r}
 if (all(dim(export_r) == dim(re_export_r))) {
@@ -183,8 +147,7 @@ if (all(dim(export_r) == dim(re_export_r))) {
 }
 ```
 
-```{undefined}
-
+```{}
 ```
 
 ```{r}
@@ -237,7 +200,7 @@ yearly_export <- yearly_export %>%
 
 ```
 
-### 3.2.1.3 Preparation for Total Merchandise Trade data frame
+### 3.2.1.3 Preparation for Total Merchandise Trade Data Frame
 
 ```{r}
 # Extract the 'Total_imports' column
@@ -256,7 +219,7 @@ combined_summary <- yearly_export %>%
 
 ```
 
-The following code is to calculate year on year % change.
+The following code is to calculate year on year percent change.
 
 ```{r}
 
@@ -273,7 +236,6 @@ combined_summary <- combined_summary %>%
     YoY_exports_change = round((Total_exports_B / lag(Total_exports_B) - 1) * 100, 2),
     YoY_trade_change = round((Total_Trade / lag(Total_Trade) - 1) * 100, 2)
   )
-
 
 ```
 
@@ -301,7 +263,6 @@ filtered_commodities <- filtered_commodities %>%
   )) %>%
   select(Trade_Type, everything())
 
-
 ```
 
 ```{r}
@@ -311,7 +272,6 @@ filtered_commodities <- filtered_commodities %>%
 ```
 
 ```{r}
-
 # Pivot the data to a longer format
 filtered_commodities_long <- filtered_commodities %>%
   pivot_longer(
@@ -319,7 +279,6 @@ filtered_commodities_long <- filtered_commodities %>%
     names_to = "Month_Year",
     values_to = "Value"
   )
-
 
 ```
 
@@ -356,17 +315,17 @@ The first task of this assignment is to make over of the existing graphical repr
 ::: callout-note
 **Pros:**
 
--   The graphic looks captivating and it draws the attention of the viewer
+-   The graph looks captivating and it draws the attention of the viewer
 
--   It clearly show the proportion import and export in the past 5 years.
+-   It clearly shows the import and export amount in the past 5 years.
 
 **Cons:**
 
--   It is difficult to see the rate of change in total trade across the years with % increase indicated at the end of the page.
+-   It is difficult to see the rate of change in total trade across the years with % increase. The author has indicated percent change at the end of the page.
 
--   While the graph shows the the amount in trade across the year it is difficult to viisually see the total change across the years. For example there as been increase in total trade from 2020 to 2022, and there is a dip in 2023 and recover to back to amount which is slightly lower than 2024.
+-   While the graph shows the the amount in trade across the years, it is difficult to visually see the trend and percentage changes across the years. For example, there has been increase in total trade amount from 2020 to 2022, while there was a dip in 2023. Despite of the dip in total trade amount in year 2023, it is still higher as compared to pre-Covid. It is important to note that the total trade amount quickly recover in 2024 leading to the 6.6 % indicated in the original graph.
 
--   while colourful chart is attention grabbing, and however it makes it visually difficult to compare across the years and it may dilute the key message the graph to be delivered.
+-   While colourful chart is attention grabbing, and however it makes it visually difficult to compare across the years and it may dilute the key message the graph to be delivered.
 :::
 
 ![](images/clipboard-3391151904.png)
@@ -375,12 +334,11 @@ The first task of this assignment is to make over of the existing graphical repr
 
 The following codes are to create the tool tips to plot the chart.
 
-As mentioned in section 3 in the data preparation, the data processing will have to be made to further prepare the data fotr the make over. the following code uses the melt () function to create the data required for plotting of the stack plot chart.
+As mentioned in section 3 in the data preparation, the data processing will have to be made further prepare the data for the make over. the following code uses the melt () function to create the data required for plotting of the stack bar chart.
 
 ```{r}
 combined_summary_melt <- melt(combined_summary, id.vars = "Year", measure.vars = c("Total_imports_B", "Total_exports_B"))
 combined_summary_melt$tooltip <- c(paste0(combined_summary_melt$Year," ," ,combined_summary_melt$value, "B"))
-
 combined_summary$tooltip <- c(paste0(combined_summary$Year," ," ,combined_summary$YoY_trade_change, "%"))
 ```
 
@@ -408,15 +366,15 @@ girafe(
 ```
 
 ::: callout-note
-The interactive chart above shows the export and import amount from 2004 from 2024. with the tooltip shows the total trade number across the years.
+The interactive chart above shows the export and import amount from 2004 from 2024, With the tooltip showing the total trade number across the years.
 
-In the chart above, one could easily see the past 10 years trend which the total trade amount has increased since 2020 post-Convid. The mouse over tool tips will highlight the amount in the export and import of the particular year.
+In the chart above, one could easily see the past 10 years trend which the total trade amount has increased since 2020 post-Covid. The mouse over tool tips will highlight the amount in the export and import of the particular year.
 
-Although in 2023, there was a dip in total trade amount in 2020
+Although in 2023, there was a dip in total trade amount, it is still higher than pre-Covid.
 
-To show the year on year percentage change, a 2nd interactive plot were plotted to visualize this. Similar to the first plot this plot uses the interactive tool tips to let viewer to mouse over to see the data points.
+To show the year on year percentage change, a 2nd interactive plot is plotted to visualize this. Similar to the first plot, the line plot uses interactive tool tips to let viewer to mouse over to see the data points.
 
-The advantage of doing two separate plots is that different dimensions of the percentage change could be visualized. In the interactive line chart, it has the percentage of in year on year percentage change for Import, Export and Total Trade.
+The advantage of doing two separate plots is that different indicator of the percentage change could be visualized. In the interactive line chart, it has the percentage of in year on year percentage change for Import, Export and Total Trade amount.
 :::
 
 ```{r}
@@ -458,7 +416,7 @@ Pros:
 
 Cos:
 
--   The above plot is stagnant, it does not show how the trend of the major trading power over the years.
+-   The above plot is stagnant, it does not show how the trend of the major trading partners over the years.
 :::
 
 ### 4.2.1 Data preparation for bubble plot make over
@@ -506,7 +464,7 @@ To improve on the visualization, animated and interactive bubble plots are plott
 
 The first plot is the animated bubble plots showing the transition across time of the top 10 major trading partners. This will allow the viewers to view the trend over time.
 
-The second plot is the bubble plot where the viewer could use the bar to view the transition of the trade between the major partners in the past 10 years at their pace, pausing as and when they want.
+The second plot is the interactive bubble plot where the viewer could use the bar to view the transition of the trade between the major partners in the past 10 years at their own pace, pausing as and when they want.
 :::
 
 The code below specified the colours of the each country codes.
@@ -565,16 +523,17 @@ ggplotly (gg)
 ::: callout-note
 **Pros**:
 
--   The infograhpics icons facilitate the users' understanding the kind of goods or items in each commodity section is about.
+-   The infographics icons facilitate the users' understanding the kind of goods or items in each commodity section is about.
 
 -   The trade balance of each of the commodities could be estimated, even though visually is not very clear.
 
--   Uniform colours are being used for exports and imports across commodity which allow
+-   Uniform colours are being used for exports and imports across commodities which allows clearer picture.
 
 **Cos:**
 
 -   Similar to the 1st chart, it is not very clear on which commodity has a biggest proportion in total trade in dollars.
--   It doesn't the proportion of different types of export which are being catorgised to Re-export and Domestic Export.
+
+-   It doesn't show the proportion of different types of export which are being catorgised to Re-export and Domestic Export.
 :::
 
 ![](images/clipboard-1458067606.png)
@@ -582,17 +541,19 @@ ggplotly (gg)
 ### 4.3.1 Tree maps
 
 ::: callout-note
-The codes chunk below is to plot the tree map the trade amount by commodities
+The codes chunk below is to plot the tree map the trade amount by commodities.
 
-While tree map is typically used to show hierarchical relationship, for this use case, we are using it to show the proportion of commodities by trade types which is namely total amount for domestic exports, total amount for re-export/
+While tree map is typically used to show hierarchical relationship, for this use case, we are using it to show the proportion of commodities by trade types which is namely total amount for domestic export and total amount for re-export.
 
-To explore the different relationships both the long data and wide data sets were used to plot two tree maps.
+To explore the different applications of the long and wide data sets were used to plot two tree maps.
 
 The first tree map in section 4.3.1.1, was plotted using the wider data set. It does not have hierarchical relationship. It solely shows the proportion of total trade by across different commodities.
 
-The second tree map in section 4.3.2.2, was plotted using long data set. It shows proper tree map showing the different proportion of each trade types for each of the commodities.
+The second tree map in section 4.3.1.2, was plotted using long data set. It shows proper tree map showing the different proportion of each trade types for each of the commodities.
 
-At one quick glance of the 2nd tree map in section 4.3.2.2, viewers will be able to identify that the largest trade is in machinery and transport equipment with good trade balance between import and export amount. Singapore being an international trading hub and land scarce to cater for heavy industrial on manufacturing of Machinery and Transport Equipment, the majority of the export equipment are in re-export rather than domestic export.
+At one quick glance of the 2nd tree map in section 4.3.1.2, viewers will be able to identify that the largest trade is in machinery and transport equipment with good trade balance between import and export amount. Singapore being an international trading hub and land scarce to cater for heavy industrial on manufacturing of Machinery and Transport Equipment, the majority of the export equipment are in re-export rather than domestic export.
+
+Hence using the above observation, is the supportive proof that tree map could be an improved version for the visuals.
 :::
 
 #### 4.3.1.1 Tree Map Using The Wider Data
@@ -630,7 +591,7 @@ treemap(filtered_commodities_wider,
         title.legend = "A")
 ```
 
-#### 4.3.1.1 Tree Map Using The Longer Data
+#### 4.3.1.2 Tree Map Using The Longer Data
 
 ```{r}
 #| fig-height: 14
@@ -657,9 +618,9 @@ treemap(filtered_commodities_longer_2024,
 
 ## 5.0 Time Series Analysis
 
-This section is to do time series analysis using the import data.
+This section is to carry out time series analysis using the import dataset by countries.
 
-We will focus the analysis on the top 10 trading partners derived in section 4.2 when plotting the bubble plot.
+We will focus the analysis on the major trading partners derived in section 4.2 when plotting the bubble plot.
 
 ### 5.1 Time Series Data Preparation
 
@@ -738,7 +699,7 @@ ggplot(data = ts_longer,
   theme_bw()
 ```
 
-### **5.3 Visual Analysis of Time-series Data**
+### 5.3 Visual Analysis of Time-series Data
 
 ```{r}
 tsibble_longer <- ts_tsibble %>%
@@ -755,13 +716,15 @@ tsibble_longer %>%
          Country == "Malaysia" |
          Country == "Indonesia" |
          Country == "Taiwan"|
-         Country == "China") %>% 
+         Country == "China"|
+         Country == "United States" |
+         Country == "Germany") %>% 
   gg_season(Imports)
 
 ```
 
 ::: callout-note
-Based on the visualisation of the top 10 countries, it was observed, while there has been significant increase in the import from China, United States and Germany, it seems that there are no clear signs of cycles across the months, hence we will focus our analysis on our nearest neighbours in trading.
+Based on the visualisation of the top 10 countries, it was observed, while there has been significant increase in the import from China, United States and Germany the recent years, it seems that there are no clear cycles across the months, hence we will focus our analysis on our nearest neighbours Malaysia and Thailand.
 
 We will focus on the analysis on Singapore's nearest neighbours Malaysia and Thailand, given there is no obvious cycle in imports from the rest of the countries.
 :::
@@ -783,10 +746,10 @@ tsibble_longer %>%
 ```
 
 ::: callout-note
-It is interesting to observe that for both countries, the import of goods to Singapore is quite stable throughout the year. This is interesting as Singapore imports its food resources from theses countries, it would have expected to have some seasonality to the import of food sources leading to spike in a certain months due to festival seasons or harvests.
+It is interesting to observe that for both countries, the importation of goods to Singapore is quite stable throughout the year. This is interesting as Singapore imports its food sources from these countries. Before carrying out this analysis, one would have expected to observe some seasonalities on the importation of food sources leading to spike in a certain months before the festival seasons or after harvest seasons.
 :::
 
-### **5.4 Time series decomposition**
+### 5.4 Time Series Decomposition
 
 ```{r}
 tsibble_longer %>%
@@ -805,7 +768,7 @@ tsibble_longer %>%
 ```
 
 ::: callout-note
-Base on the data, it was observed that there are significant results at lag before 6 months. so there was some seasonality.
+Base on the charts, it was observed that there are significant results at lag -1 before 6 months. so there were some seasonality observed.
 :::
 
 ```{r}
@@ -821,9 +784,9 @@ tsibble_longer %>%
   gg_tsdisplay(Imports)
 ```
 
-### **5.5 Visual STL Diagnostics**
+### 5.5 Visual STL Diagnostics
 
-Since based on the time series decomposition, there are some seasonality which is significant in both countries, we will carry out further analysis for using import data from Malaysia using STL method.
+Based on the time series decomposition, there are some seasonality observed which are significant in both countries. However due to the time restaints, we will carry out further forecasting using import data from Malaysia only using STL method.
 
 We will hold out the hold the last 12 months of the data for testing while the rest for training.
 
@@ -847,9 +810,7 @@ Total_Import_train %>%
   autoplot()
 ```
 
-### **5.6 Visual Forecasting**
-
-
+### 5.6 Visual Forecasting
 
 ```{r}
 fit_ses <- Total_Import_train %>%
@@ -927,7 +888,7 @@ fit_ETS %>%
   report()
 ```
 
-### 5. 7 Forecasting Future values
+### 5. 7 Forecasting Future Values
 
 ```{r}
 fit_ETS %>%
@@ -970,8 +931,8 @@ Total_Import_TS %>%
     data = augment(fit_autoETS))
 ```
 
-**5.8 Conclusion**
+### 5.8 Conclusion
 
 ::: callout-note
-The use of ETS models: fable method doesn't yield good results, the range of both 90% and 80% levels are very wide range. The forecast values are quite far from the hold out period. Due to the time limit of the assignment, other methods were not explored further to better analyse the requirements.
+The use of ETS models: fable method doesn't yield good results, the ranges of both 90% and 80% levels are very wide. The forecast values are quite far from the hold out data. Due to the time limit of the assignment, other methods were not explored further to build better forecast model.
 :::
