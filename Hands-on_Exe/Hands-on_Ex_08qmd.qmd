@@ -10,6 +10,7 @@ execute:
   freeze: true
 ---
 
+## Choropleth Mapping with R
 ```{r}
 pacman::p_load(sf, tmap, tidyverse)
 ```
@@ -407,8 +408,9 @@ NGA_wp <- NGA_wp %>%
 percent <- c(0,.01,.1,.5,.9,.99,1)
 var <- NGA_wp["pct_functional"] %>%
   st_set_geometry(NULL)
-quantile(var[,1], percent, na.rm = TRUE) #modify the code.
+quantile(var[,1], percent, na.rm = TRUE) #modify the code, as there may be missing data in the database. 
 ```
+
 ```{r}
 get.var <- function(vname,df) {
   v <- df[vname] %>% 

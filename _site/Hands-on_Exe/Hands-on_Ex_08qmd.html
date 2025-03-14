@@ -223,9 +223,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#visualising-geospatial-point-data" id="toc-visualising-geospatial-point-data" class="nav-link active" data-scroll-target="#visualising-geospatial-point-data">Visualising Geospatial Point Data</a></li>
+  <li><a href="#choropleth-mapping-with-r" id="toc-choropleth-mapping-with-r" class="nav-link active" data-scroll-target="#choropleth-mapping-with-r">Choropleth Mapping with R</a>
+  <ul class="collapse">
+  <li><a href="#visualising-geospatial-point-data" id="toc-visualising-geospatial-point-data" class="nav-link" data-scroll-target="#visualising-geospatial-point-data">Visualising Geospatial Point Data</a></li>
   <li><a href="#drawing-proportional-symbol-map" id="toc-drawing-proportional-symbol-map" class="nav-link" data-scroll-target="#drawing-proportional-symbol-map">Drawing Proportional Symbol Map</a></li>
   <li><a href="#analytical-mapping" id="toc-analytical-mapping" class="nav-link" data-scroll-target="#analytical-mapping">Analytical Mapping</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -269,6 +272,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="choropleth-mapping-with-r" class="level2">
+<h2 class="anchored" data-anchor-id="choropleth-mapping-with-r">Choropleth Mapping with R</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tmap, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -869,7 +874,7 @@ Projected CRS: SVY21 / Singapore TM
 <div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>percent <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">01</span>,.<span class="dv">1</span>,.<span class="dv">5</span>,.<span class="dv">9</span>,.<span class="dv">99</span>,<span class="dv">1</span>)</span>
 <span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>var <span class="ot">&lt;-</span> NGA_wp[<span class="st">"pct_functional"</span>] <span class="sc">%&gt;%</span></span>
 <span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_set_geometry</span>(<span class="cn">NULL</span>)</span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(var[,<span class="dv">1</span>], percent, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="co">#modify the code.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(var[,<span class="dv">1</span>], percent, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="co">#modify the code, as there may be missing data in the database. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       0%        1%       10%       50%       90%       99%      100% 
 0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 </code></pre>
@@ -1003,6 +1008,7 @@ Projected CRS: SVY21 / Singapore TM
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
