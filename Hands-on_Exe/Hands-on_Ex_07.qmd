@@ -10,7 +10,6 @@ execute:
   freeze: true
 ---
 
-
 ### Visualising and Analysing Time-oriented Data
 
 ```{r}
@@ -19,7 +18,7 @@ pacman::p_load(rootSolve, lmom, expm, Exact, gld, productplots, libcoin, inum,
                data.table, dplyr,ggthemes, readxl )
 ```
 
-### Plotting Calender Heatmap 
+### Plotting Calender Heatmap
 
 ```{r}
 attacks <- read.csv("data/eventlog.csv")
@@ -30,6 +29,7 @@ attacks <- read.csv("data/eventlog.csv")
 ```{r}
 kable(head(attacks))
 ```
+
 ### Data Preparation
 
 ```{r}
@@ -44,8 +44,6 @@ make_hr_wkday <- function(ts, sc, tz) {
   }
 
 ```
-
-
 
 ```{r}
 wkday_levels <- c('Saturday', 'Friday', 
@@ -64,6 +62,7 @@ attacks <- attacks %>%
     hour  = factor(
       hour, levels = 0:23))
 ```
+
 ```{r}
 grouped <- attacks %>% 
   count(wkday, hour) %>% 
@@ -92,7 +91,8 @@ theme(axis.ticks = element_blank(),
 
 ### Building Multiple Calendar Heatmaps
 
-#### Using different from code from prof kam 
+#### Using different from code from prof kam
+
 ```{r}
 top4 <- attacks %>%
   count(source_country, wkday, hour) %>%
@@ -109,8 +109,6 @@ grouped_top4 <- attacks %>%
 
 
 ```
-
- 
 
 ```{r}
 #| fig-width: 12 #to widen the space
@@ -145,7 +143,6 @@ theme(axis.ticks = element_blank(),
 air <- read_excel("data/arrivals_by_air.xlsx")
 ```
 
-
 ```{r}
 air$month <- factor(month(air$`Month-Year`), 
                     levels=1:12, 
@@ -162,13 +159,11 @@ Vietnam <- air %>%
   filter(year >= 2010)
 ```
 
-
 ```{r}
 hline.data <- Vietnam %>% 
   group_by(month) %>%
   summarise(avgvalue = mean(`Vietnam`))
 ```
-
 
 ```{r}
 #| fig-width: 20 #to widen the space
@@ -193,7 +188,6 @@ ggplot() +
 
 ```
 
-
 ### Plotting Slopegraph
 
 Step 1: Data Import
@@ -201,7 +195,6 @@ Step 1: Data Import
 ```{r}
 rice <- read_csv("data/rice.csv")
 ```
-
 
 ```{r}
 rice %>% 
@@ -212,6 +205,3 @@ rice %>%
                 SubTitle = "1961-1980",
                 Caption = "Referred to codes by: Dr. Kam Tin Seong")
 ```
-
-
-

@@ -10,7 +10,6 @@ execute:
   freeze: true
 ---
 
-
 ```{r}
 pacman::p_load(tidyverse)
 ```
@@ -19,3 +18,6 @@ pacman::p_load(tidyverse)
 weather<- read_csv("data/combined_weather_data.csv")
 ```
 
+```{r}
+summary(weather)
+```
