@@ -22,7 +22,9 @@ website:
         - text: "Hands-on Exercise 7"
           href: Hands-on_Exe/Hands-on_Ex_07.html
         - text: "Hands-on Exercise 8"
-          href: Hands-on_Exe/Hands-on_Ex_08.html
+          href: Hands-on_Exe/Hands-on_Ex_08qmd.html
+        - text: "Hands-on Exercise 8_tmap 4.0"
+          href: Hands-on_Exe/Hands-on_Ex_08_newTmap.html
           
       - text: "In-class Exercise"
         menu:

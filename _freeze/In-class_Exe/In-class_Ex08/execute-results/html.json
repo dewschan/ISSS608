@@ -1,0 +1,15 @@
+{
+  "hash": "50535222a91756504b39ffefa90aaeba",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In-Class Exe 08- Modified codes using the new tmap package\"\nauthor: \"Dew Stella\"\ndate: \"2025-03-12\"\ndate-modified: \"last-modified\"\nexecute:\n  echo: true\n  eval: true\n  warning: false\n  freeze: true\n---\n\n\n\n\n## Choropleth Mapping with R\n\n\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, tmap, tidyverse)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nmpsz <- st_read(dsn = \"data/geospatial\", \n                layer = \"MP14_SUBZONE_WEB_PL\")\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\nReading layer `MP14_SUBZONE_WEB_PL' from data source \n  `C:\\dewschan\\ISSS608\\In-class_Exe\\data\\geospatial' using driver `ESRI Shapefile'\nSimple feature collection with 323 features and 15 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33\nProjected CRS: SVY21\n```\n\n\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\npopdata <- read_csv(\"data/aspatial/respopagesextod2011to2020.csv\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\npopdata <- read_csv(\"data/aspatial/respopagesextod2011to2020.csv\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\npopdata2020 <- popdata %>%\n  filter(Time == 2020) %>%\n  group_by(PA, SZ, AG) %>%\n  summarise(`POP` = sum(`Pop`)) %>%\n  ungroup() %>%\n  pivot_wider(names_from=AG, \n              values_from=POP) %>%\n  mutate(YOUNG = rowSums(.[3:6])\n         +rowSums(.[12])) %>%\nmutate(`ECONOMY ACTIVE` = rowSums(.[7:11])+\nrowSums(.[13:15]))%>%\nmutate(`AGED`=rowSums(.[16:21])) %>%\nmutate(`TOTAL`=rowSums(.[3:21])) %>%  \nmutate(`DEPENDENCY` = (`YOUNG` + `AGED`)\n/`ECONOMY ACTIVE`) %>%\n  select(`PA`, `SZ`, `YOUNG`, \n       `ECONOMY ACTIVE`, `AGED`, \n       `TOTAL`, `DEPENDENCY`)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\npopdata2020 <- popdata2020 %>%\n  mutate_at(.vars = vars(PA, SZ), \n          .funs = funs(toupper)) %>%\n  filter(`ECONOMY ACTIVE` > 0)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nmpsz_pop2020 <- left_join(mpsz, popdata2020,\n                          by = c(\"SUBZONE_N\" = \"SZ\"))\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nwrite_rds(mpsz_pop2020, \"data/rds/mpszpop2020.rds\")\n```\n:::",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -1,6 +1,6 @@
 ---
-title: "Hands-on Exercise 08"
-author: "Dew Stella Chan"
+title: "Hands-o Exe 08- Modified codes using the new tmap package"
+author: "Dew Stella"
 date: "2025-03-12"
 date-modified: "last-modified"
 execute:
@@ -9,7 +9,6 @@ execute:
   warning: false
   freeze: true
 ---
-
 ## Choropleth Mapping with R
 
 ```{r}
@@ -22,9 +21,11 @@ mpsz <- st_read(dsn = "data/geospatial",
 
 ```
 
+
 ```{r}
-mpsz
+popdata <- read_csv("data/aspatial/respopagesextod2011to2020.csv")
 ```
+
 
 ```{r}
 popdata <- read_csv("data/aspatial/respopagesextod2011to2020.csv")
@@ -69,52 +70,47 @@ write_rds(mpsz_pop2020, "data/rds/mpszpop2020.rds")
 ```
 
 ```{r}
-tmap_mode("plot")
-qtm(mpsz_pop2020, 
-    fill = "DEPENDENCY")
-```
+## Revised code with tmap version 4.0 
 
-```{r}
 tm_shape(mpsz_pop2020)+
-  tm_fill("DEPENDENCY", 
-          style = "quantile", 
-          palette = "Blues",
-          title = "Dependency ratio") +
-  tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone",
-            main.title.position = "center",
-            main.title.size = 1.2,
-            legend.height = 0.45, 
-            legend.width = 0.35,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+  tm_polygons(fill = "DEPENDENCY", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_title("Distribution of Dependency Ratio by planning subzone") +
+  tm_layout(frame = TRUE) +
+  tm_borders(fill_alpha = 0.5) +
   tm_compass(type="8star", size = 2) +
-  tm_scale_bar() +
   tm_grid(alpha =0.2) +
   tm_credits("Source: Planning Sub-zone boundary from Urban Redevelopment Authorithy (URA)\n and Population data from Department of Statistics DOS", 
              position = c("left", "bottom"))
 ```
 
 ```{r}
-tm_shape(mpsz_pop2020) +
-  tm_polygons()
-```
-
-```{r}
-tm_shape(mpsz_pop2020)+
-  tm_polygons("DEPENDENCY")
-```
-
-```{r}
-tm_shape(mpsz_pop2020)+
-  tm_fill("DEPENDENCY")
-```
-
-```{r}
 tmap_mode("plot")
 qtm(mpsz_pop2020, 
     fill = "DEPENDENCY")
 ```
-
+```{r}
+tm_shape(mpsz_pop2020) +
+  tm_polygons()
+```
+```{r}
+tm_shape(mpsz_pop2020)+
+  tm_polygons("DEPENDENCY")
+```
+```{r}
+tm_shape(mpsz_pop2020)+
+  tm_fill("DEPENDENCY")
+```
+```{r}
+tm_shape(mpsz_pop2020)+
+  tm_fill("DEPENDENCY") +
+  tm_borders(lwd = 0.1,  alpha = 1)
+```
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
@@ -122,7 +118,6 @@ tm_shape(mpsz_pop2020)+
           style = "jenks") +
   tm_borders(alpha = 0.5)
 ```
-
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
@@ -130,16 +125,8 @@ tm_shape(mpsz_pop2020)+
           style = "equal") +
   tm_borders(alpha = 0.5)
 ```
-
 ```{r}
 summary(mpsz_pop2020$DEPENDENCY)
-```
-
-```{r}
-tm_shape(mpsz_pop2020)+
-  tm_fill("DEPENDENCY",
-          breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00)) +
-  tm_borders(alpha = 0.5)
 ```
 
 ```{r}
@@ -149,8 +136,8 @@ tm_shape(mpsz_pop2020)+
           style = "quantile",
           palette = "Blues") +
   tm_borders(alpha = 0.5)
-```
 
+```
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
@@ -158,7 +145,6 @@ tm_shape(mpsz_pop2020)+
           palette = "-Greens") +
   tm_borders(alpha = 0.5)
 ```
-
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
@@ -177,7 +163,6 @@ tm_shape(mpsz_pop2020)+
             frame = FALSE) +
   tm_borders(alpha = 0.5)
 ```
-
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY", 
@@ -186,27 +171,26 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5) +
   tmap_style("classic")
 ```
-
 ```{r}
 tm_shape(mpsz_pop2020)+
-  tm_fill("DEPENDENCY", 
-          style = "quantile", 
-          palette = "Blues",
-          title = "No. of persons") +
-  tm_layout(main.title = "Distribution of Dependency Ratio \nby planning subzone",
-            main.title.position = "center",
-            main.title.size = 1.2,
-            legend.height = 0.45, 
-            legend.width = 0.35,
-            frame = TRUE) +
-  tm_borders(alpha = 0.5) +
+  tm_polygons(fill = "DEPENDENCY", 
+              fill.scale = tm_scale_intervals(
+                style = "quantile",
+                n = 5,
+                values = "brewer.blues"),
+              fill.legend = tm_legend(
+                title = "Dependency ratio")) +
+  tm_title("Distribution of Dependency Ratio by planning subzone") +
+  tm_layout(frame = TRUE) +
+  tm_borders(fill_alpha = 0.5) +
   tm_compass(type="8star", size = 2) +
-  tm_scale_bar(width = 0.15) +
-  tm_grid(lwd = 0.1, alpha = 0.2) +
+  tm_grid(alpha =0.2) +
   tm_credits("Source: Planning Sub-zone boundary from Urban Redevelopment Authorithy (URA)\n and Population data from Department of Statistics DOS", 
              position = c("left", "bottom"))
 ```
-
+```{r}
+tmap_style("white")
+```
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill(c("YOUNG", "AGED"),
@@ -223,39 +207,7 @@ tm_shape(mpsz_pop2020)+
           style = c("equal", "quantile"), 
           palette = list("Blues","Greens")) +
   tm_layout(legend.position = c("right", "bottom"))
-
 ```
-
-```{r}
-tm_shape(mpsz_pop2020) +
-  tm_fill("DEPENDENCY",
-          style = "quantile",
-          palette = "Blues",
-          thres.poly = 0) + 
-  tm_facets(by="REGION_N", 
-            free.coords=TRUE, 
-            drop.shapes=FALSE) +
-  tm_layout(legend.show = FALSE,
-            title.position = c("center", "center"), 
-            title.size = 20) +
-  tm_borders(alpha = 0.5)
-```
-
-```{r}
-tm_shape(mpsz_pop2020) +
-  tm_fill("DEPENDENCY",
-          style = "quantile",
-          palette = "Blues",
-          thres.poly = 0) + 
-  tm_facets(by="REGION_N", 
-            free.coords=TRUE, 
-            drop.shapes=FALSE) +
-  tm_layout(legend.show = FALSE,
-            title.position = c("center", "center"), 
-            title.size = 20) +
-  tm_borders(alpha = 0.5)
-```
-
 ```{r}
 youngmap <- tm_shape(mpsz_pop2020)+ 
   tm_polygons("YOUNG", 
@@ -285,15 +237,14 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
             frame = FALSE) +
   tm_borders(alpha = 0.5)
 ```
-
-### Visualising Geospatial Point Data
-
-```{r}
-pacman::p_load(sf, tmap, tidyverse)
-```
+## Visualising Geospatial Point Data
 
 ```{r}
 sgpools <- read_csv("data/aspatial/SGPools_svy21.csv")
+```
+
+```{r}
+list(sgpools) 
 ```
 
 ```{r}
@@ -302,84 +253,80 @@ sgpools_sf <- st_as_sf(sgpools,
                        crs= 3414)
 ```
 
+The tmap view is changed to plot to
+
 ```{r}
-list(sgpools_sf)
+tmap_mode("plot")
 ```
-
-### Drawing Proportional Symbol Map
-
 ```{r}
-tmap_mode("plot") # change to plot for smooth rendering
-```
-
-```{r}
-tm_shape(sgpools_sf)+
-tm_bubbles(col = "red",
+tm_shape(sgpools_sf) + 
+  tm_bubbles(fill = "red",
            size = 1,
-           border.col = "black",
-           border.lwd = 1)
+           col = "black",
+           lwd = 1)
 ```
-
 ```{r}
-tm_shape(sgpools_sf)+
-tm_bubbles(col = "red",
-           size = "Gp1Gp2 Winnings",
-           border.col = "black",
-           border.lwd = 1)
+tm_shape(sgpools_sf) + 
+  tm_bubbles(fill = "red",
+             size = "Gp1Gp2 Winnings",
+             col = "black",
+             lwd = 1)
 ```
-
 ```{r}
-tm_shape(sgpools_sf)+
-tm_bubbles(col = "OUTLET TYPE", 
-          size = "Gp1Gp2 Winnings",
-          border.col = "black",
-          border.lwd = 1)
+tm_shape(sgpools_sf) + 
+  tm_bubbles(fill = "OUTLET TYPE", 
+             size = "Gp1Gp2 Winnings",
+             col = "black",
+             lwd = 1)
 ```
-
 ```{r}
-tm_shape(sgpools_sf) +
-  tm_bubbles(col = "OUTLET TYPE", 
-          size = "Gp1Gp2 Winnings",
-          border.col = "black",
-          border.lwd = 1) +
+tm_shape(sgpools_sf) + 
+  tm_bubbles(fill = "OUTLET TYPE", 
+             size = "Gp1Gp2 Winnings",
+             col = "black",
+             lwd = 1) + 
   tm_facets(by= "OUTLET TYPE",
             nrow = 1,
             sync = TRUE)
 ```
-
-### Analytical Mapping
-
-```{r}
-pacman::p_load(tmap, tidyverse, sf)
-```
+## Analytical Mapping
 
 ```{r}
 NGA_wp <- read_rds("data/rds/NGA_wp.rds")
+
 ```
+
 
 ```{r}
 p1 <- tm_shape(NGA_wp) +
-  tm_fill("wp_functional",
-          n = 10,
-          style = "equal",
-          palette = "Blues") +
-  tm_borders(lwd = 0.1,
-             alpha = 1) +
-  tm_layout(main.title = "Distribution of functional water point by LGAs",
-            legend.outside = FALSE)
+  tm_polygons(col = "wp_functional",
+              n = 10,
+              style = "equal",
+              palette = "Blues",
+              border.col = "black",
+              lwd = 0.1,
+              col_alpha = 1) +
+  tm_title("Distribution of functional water point by LGAs") +
+  tm_layout(legend.outside = FALSE)
+
 ```
 
 ```{r}
 p2 <- tm_shape(NGA_wp) +
-  tm_fill("total_wp",
-          n = 10,
-          style = "equal",
-          palette = "Blues") +
-  tm_borders(lwd = 0.1,
-             alpha = 1) +
-  tm_layout(main.title = "Distribution of total  water point by LGAs",
-            legend.outside = FALSE)
+  tm_polygons(col = "total_wp",
+              n = 10,
+              style = "equal",
+              palette = "Blues",
+              border.col = "black",
+              lwd = 0.1,
+              col_alpha = 1) +
+  tm_title("Distribution of total water point by LGAs") +
+  tm_layout(legend.outside = FALSE)
+
 ```
+
+
+
 
 ```{r}
 tmap_arrange(p2, p1, nrow = 1)
@@ -391,24 +338,21 @@ NGA_wp <- NGA_wp %>%
   mutate(pct_nonfunctional = wp_nonfunctional/total_wp)
 ```
 
-```{r}
-NGA_wp <- NGA_wp %>%
-  mutate(pct_functional = wp_functional/total_wp) %>%
-  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)
-```
+## Extreme Value Maps
 
 ```{r}
 NGA_wp <- NGA_wp %>%
-  mutate(pct_functional = wp_functional/total_wp) %>%
-  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)
+  drop_na()
 ```
 
 ```{r}
 percent <- c(0,.01,.1,.5,.9,.99,1)
 var <- NGA_wp["pct_functional"] %>%
   st_set_geometry(NULL)
-quantile(var[,1], percent, na.rm = TRUE) #modify the code, as there may be missing data in the database. 
+quantile(var[,1], percent)
 ```
+
+
 
 ```{r}
 get.var <- function(vname,df) {
@@ -420,35 +364,35 @@ get.var <- function(vname,df) {
 ```
 
 ```{r}
-percentmap <- function(vnam, df, legtitle=NA, mtitle="Percentile Map"){
-  percent <- c(0,.01,.1,.5,.9,.99,1)
+percentmap <- function(vnam, df, legtitle = NA, mtitle = "Percentile Map") {
+  percent <- c(0, 0.01, 0.1, 0.5, 0.9, 0.99, 1)
   var <- get.var(vnam, df)
   bperc <- quantile(var, percent)
+  
   tm_shape(df) +
-  tm_polygons() +
-  tm_shape(df) +
-     tm_fill(vnam,
-             title=legtitle,
-             breaks=bperc,
-             palette="Blues",
-          labels=c("< 1%", "1% - 10%", "10% - 50%", "50% - 90%", "90% - 99%", "> 99%"))  +
-  tm_borders() +
-  tm_layout(main.title = mtitle, 
-            title.position = c("right","bottom"))
+    tm_polygons() +
+    tm_shape(df) +
+    tm_polygons(col = vnam,
+                title = legtitle,
+                breaks = bperc,
+                palette = "brewer.blues",
+                labels = c("< 1%", "1% - 10%", "10% - 50%", "50% - 90%", "90% - 99%", "> 99%")) +
+    tm_title(mtitle) +
+    tm_layout(title.position = c("right", "bottom"))
 }
 ```
+
+
 
 ```{r}
 percentmap("total_wp", NGA_wp)
 ```
-
 ```{r}
 ggplot(data = NGA_wp,
        aes(x = "",
            y = wp_nonfunctional)) +
   geom_boxplot()
 ```
-
 ```{r}
 boxbreaks <- function(v,mult=1.5) {
   qv <- unname(quantile(v))
@@ -485,6 +429,7 @@ get.var <- function(vname,df) {
 }
 ```
 
+
 ```{r}
 var <- get.var("wp_nonfunctional", NGA_wp) 
 boxbreaks(var)
@@ -492,31 +437,39 @@ boxbreaks(var)
 
 ```{r}
 boxmap <- function(vnam, df, 
-                   legtitle=NA,
-                   mtitle="Box Map",
-                   mult=1.5){
-  var <- get.var(vnam,df)
+                   legtitle = NA,
+                   mtitle = "Box Map",
+                   mult = 1.5) {
+  var <- get.var(vnam, df)
   bb <- boxbreaks(var)
-  tm_shape(df) +
-    tm_polygons() +
-  tm_shape(df) +
-     tm_fill(vnam,title=legtitle,
-             breaks=bb,
-             palette="Blues",
-          labels = c("lower outlier", 
-                     "< 25%", 
-                     "25% - 50%", 
-                     "50% - 75%",
-                     "> 75%", 
-                     "upper outlier"))  +
-  tm_borders() +
-  tm_layout(main.title = mtitle, 
-            title.position = c("left",
-                               "top"))
+  tm <- tm_shape(df) +
+    tm_polygons(
+      col = vnam,
+      fill.scale = tm_scale(
+        breaks = bb,
+        values = "brewer.blues",
+        labels = c(
+          "lower outlier", 
+          "< 25%", 
+          "25% - 50%", 
+          "50% - 75%",
+          "> 75%", 
+          "upper outlier"
+        )
+      ),
+      fill.legend = tm_legend(title = legtitle)
+    ) +
+    tm_title(mtitle) +
+    tm_layout(
+      legend.position = c("left", "top")
+    )
+  return(tm)
 }
+
 ```
 
 ```{r}
 tmap_mode("plot")
 boxmap("wp_nonfunctional", NGA_wp)
 ```
+
