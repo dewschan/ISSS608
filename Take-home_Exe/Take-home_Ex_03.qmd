@@ -1,0 +1,11 @@
+---
+title: "Take Home 03"
+author: "Dew Stella Chan"
+date: "2025-03-29"
+date-modified: "last-modified"
+execute:
+  echo: true
+  eval: true
+  warning: false
+  freeze: true
+---
