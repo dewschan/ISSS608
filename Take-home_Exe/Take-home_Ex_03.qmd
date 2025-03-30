@@ -290,10 +290,6 @@ combined_Yearly_data <- read_rds("data/Ex03/rds/combined_Yearly_data.rds")
 #### Histograms
 
 ```{r}
-library(tidyr)
-library(dplyr)
-
-# Ensure all numeric columns are selected (excluding non-numeric ones like "Year" or "Month")
 long_data <- combined_Monthly_data %>%
   pivot_longer(cols = where(is.numeric), names_to = "Variable", values_to = "Value")
 
