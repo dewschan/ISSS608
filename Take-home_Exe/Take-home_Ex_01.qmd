@@ -280,7 +280,7 @@ The aim of this task is to examine if there are any trends in categorical data i
 
 The code below is extract our the categorical data and summaries into the occurrence of heart attack by Heart occurrence Age Groups and Event Groups.
 
-The data are processed using the following codes to allow flexibility when exploring the data set.Hence HA is being used instead of the subgroups. Those data sets would be used in the subsequent visuslisation.
+The data are processed using the following codes to allow flexibility when exploring the data set.Hence HA is being used instead of the subgroups. Those data sets would be used in the subsequent visualization.
 
 ```{r}
 categorical_columns <- HA %>% select(where(~is.character(.x) || is.factor(.x)))
