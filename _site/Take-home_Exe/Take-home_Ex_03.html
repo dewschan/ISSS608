@@ -252,14 +252,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#data-preparation-for-the-electricity-consumption-data." id="toc-data-preparation-for-the-electricity-consumption-data." class="nav-link" data-scroll-target="#data-preparation-for-the-electricity-consumption-data.">Data Preparation for the Electricity consumption data.</a></li>
   <li><a href="#combining-data-sets" id="toc-combining-data-sets" class="nav-link" data-scroll-target="#combining-data-sets">Combining data sets</a></li>
   </ul></li>
-  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</a>
+  <li><a href="#exploratory-data-analysis-eda-and-confirmatory-data-analysis-cda" id="toc-exploratory-data-analysis-eda-and-confirmatory-data-analysis-cda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda-and-confirmatory-data-analysis-cda">Exploratory Data Analysis (EDA) and Confirmatory Data Analysis (CDA)</a>
   <ul class="collapse">
   <li><a href="#distribution-of-of-the-data" id="toc-distribution-of-of-the-data" class="nav-link" data-scroll-target="#distribution-of-of-the-data">Distribution of of the data</a></li>
   <li><a href="#correlation-between-the-various-variables." id="toc-correlation-between-the-various-variables." class="nav-link" data-scroll-target="#correlation-between-the-various-variables.">Correlation between the various variables.</a></li>
   <li><a href="#distribution-of-the-data" id="toc-distribution-of-the-data" class="nav-link" data-scroll-target="#distribution-of-the-data">Distribution of the data</a></li>
   <li><a href="#ridgelines-of-variables" id="toc-ridgelines-of-variables" class="nav-link" data-scroll-target="#ridgelines-of-variables">Ridgelines of variables</a></li>
   <li><a href="#one-way-anova" id="toc-one-way-anova" class="nav-link" data-scroll-target="#one-way-anova">One-Way Anova</a></li>
-  <li><a href="#multi-linear-regression" id="toc-multi-linear-regression" class="nav-link" data-scroll-target="#multi-linear-regression">Multi-linear regression</a></li>
+  <li><a href="#multi-linear-regression-mlr" id="toc-multi-linear-regression-mlr" class="nav-link" data-scroll-target="#multi-linear-regression-mlr">Multi-Linear Regression (MLR)</a></li>
   <li><a href="#disclaimer" id="toc-disclaimer" class="nav-link" data-scroll-target="#disclaimer">Disclaimer</a></li>
   </ul></li>
   </ul>
@@ -523,8 +523,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="exploratory-data-analysis-eda" class="level2">
-<h2 class="anchored" data-anchor-id="exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</h2>
+<section id="exploratory-data-analysis-eda-and-confirmatory-data-analysis-cda" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis-eda-and-confirmatory-data-analysis-cda">Exploratory Data Analysis (EDA) and Confirmatory Data Analysis (CDA)</h2>
 <section id="distribution-of-of-the-data" class="level3">
 <h3 class="anchored" data-anchor-id="distribution-of-of-the-data">Distribution of of the data</h3>
 <section id="histograms" class="level4">
@@ -983,8 +983,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="multi-linear-regression" class="level3">
-<h3 class="anchored" data-anchor-id="multi-linear-regression">Multi-linear regression</h3>
+<section id="multi-linear-regression-mlr" class="level3">
+<h3 class="anchored" data-anchor-id="multi-linear-regression-mlr">Multi-Linear Regression (MLR)</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(combined_Monthly_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1066,8 +1066,8 @@ Moderate Correlation
 </div>
 </div>
 </div>
-<section id="removed-60-mins-rainfll-data-die-to-multicollinearity" class="level4">
-<h4 class="anchored" data-anchor-id="removed-60-mins-rainfll-data-die-to-multicollinearity">Removed 60 mins Rainfll data die to multicollinearity</h4>
+<section id="removed-highest-rainfall-in-60-min-data-due-to-multicollinearity" class="level4">
+<h4 class="anchored" data-anchor-id="removed-highest-rainfall-in-60-min-data-due-to-multicollinearity">Removed Highest Rainfall in 60 min data due to multicollinearity</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>model_health <span class="ot">&lt;-</span> <span class="fu">lm</span>(denguecases <span class="sc">~</span> MaxTemp <span class="sc">+</span> MinTemp <span class="sc">+</span> AvgMeanTemp<span class="sc">+</span> Highest30minRainfall <span class="sc">+</span> Highest120minRainfall , <span class="at">data =</span> combined_Monthly_data)</span>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_health)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1102,7 +1102,7 @@ F-statistic: 2.008 on 5 and 114 DF,  p-value: 0.08278</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex_03_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex_03_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid figure-img" width="1536"></p>
 </figure>
 </div>
 </div>
@@ -1145,7 +1145,7 @@ F-statistic: 9.374 on 6 and 113 DF,  p-value: 2.437e-08</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex_03_files/figure-html/unnamed-chunk-50-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex_03_files/figure-html/unnamed-chunk-49-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -1185,7 +1185,7 @@ F-statistic: 11.34 on 5 and 114 DF,  p-value: 6.835e-09</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex_03_files/figure-html/unnamed-chunk-52-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex_03_files/figure-html/unnamed-chunk-51-1.png" class="img-fluid figure-img" width="1536"></p>
 </figure>
 </div>
 </div>

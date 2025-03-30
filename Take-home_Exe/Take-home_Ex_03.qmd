@@ -282,7 +282,7 @@ write_rds(combined_Yearly_data, file = "data/Ex03/rds/combined_Yearly_data.rds")
 combined_Yearly_data <- read_rds("data/Ex03/rds/combined_Yearly_data.rds")
 ```
 
-## Exploratory Data Analysis (EDA) 
+## Exploratory Data Analysis (EDA) and Confirmatory Data Analysis (CDA)
 
 
 ### Distribution of of the data
@@ -587,7 +587,7 @@ ggbetweenstats(
 )
 ```
 
-### Multi-linear regression 
+### Multi-Linear Regression (MLR) 
 
 ```{r}
 colnames(combined_Monthly_data)
@@ -609,7 +609,7 @@ plot(check_c_health)
 ```
 
 
-#### Removed 60 mins Rainfll data die to multicollinearity
+#### Removed Highest Rainfall in 60 min data due to multicollinearity
 ```{r}
 model_health <- lm(denguecases ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall + Highest120minRainfall , data = combined_Monthly_data)
 summary(model_health)
@@ -617,6 +617,8 @@ summary(model_health)
 
 
 ```{r}
+#| fig-height: 18
+#| fig-width: 16
 check_model(model_health)
 ```
 
@@ -627,9 +629,6 @@ model_elec <- lm(Monthly_Elec_consump ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest
 summary(model_elec)
 ```
 
-```{r}
-
-```
 
 ```{r}
 check_c_elec <- check_collinearity(model_elec)
@@ -641,13 +640,11 @@ model_elec <- lm(Monthly_Elec_consump ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest
 summary(model_elec)
 ```
 ```{r}
+#| fig-height: 18
+#| fig-width: 16
 check_model(model_elec)
 ```
 
-
-```{r}
-
-```
 
 ### Disclaimer
 
