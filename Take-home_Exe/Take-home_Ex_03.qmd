@@ -48,7 +48,7 @@ For this part of the analysis, it will focus on the time period from 2014 to Jun
 
 Hence the common period is from **2014 to June 2024**. we would be using this common period.
 
-Although the weather station at changi has the most completed dataset,
+Although the weather station at Changi has the most completed dataset,
 
 ## Weather Data:
 
@@ -104,11 +104,13 @@ weather_Monthly <- filtered_weather %>%
     total_rainfall=sum(DailyRainfall,na.rm=TRUE),
     Highest30minRainfall=max(Highest30minRainfall,na.rm=TRUE),
     Highest60minRainfall=max(Highest60minRainfall, na.rm=TRUE),
-    Highest120minRainfall=max(Highest120minRainfall, na.rm=TRUE)
+    Highest120minRainfall=max(Highest120minRainfall, na.rm=TRUE), 
+    DaysAbove35 = sum(MaxTemperature >=35, na.rm = TRUE)
   )
+
 ```
 
-The following code chuck is to aggreate the yearly data together.
+The following code chuck is to aggregate the yearly data together.
 
 2024 data are being dropped as the electricity consumption data for 2024 is incomplete
 
@@ -123,7 +125,8 @@ weather_Yearly <- filtered_weather %>%
     total_rainfall = sum(DailyRainfall, na.rm = TRUE),
     Highest30minRainfall = max(Highest30minRainfall, na.rm = TRUE),
     Highest60minRainfall = max(Highest60minRainfall, na.rm = TRUE), 
-    Highest120minRainfall = max(Highest120minRainfall, na.rm = TRUE)
+    Highest120minRainfall = max(Highest120minRainfall, na.rm = TRUE), 
+    DaysAbove35 = sum(MaxTemperature >=35, na.rm = TRUE)
   )%>%
   filter(Year != 2024)  
 ```
@@ -257,6 +260,10 @@ combined_Monthly_data <- Monthly_dengue_longer %>%
 ```
 
 ```{r}
+
+```
+
+```{r}
 #| eval: False
 write_rds(combined_Monthly_data, file = "data/Ex03/rds/combined_Monthly_data.rds")
 ```
@@ -284,6 +291,84 @@ combined_Yearly_data <- read_rds("data/Ex03/rds/combined_Yearly_data.rds")
 
 ## Exploratory Data Analysis (EDA) and Confirmatory Data Analysis (CDA)
 
+### Yearly Trend
+
+To start of EDA, this exercise used the yearly data to explore the overall trends on the variables. This will be useful to provide the preliminary understanding on how climate change has impacted the local weather parameters, health (represented by dengue cases) and household consumption represented by electricity.
+
+#### Yearly Trends on Temperature
+
+```{r}
+
+# Reshape the data for columns 3 to 5
+yearly_combined_data <- combined_Yearly_data %>%
+  select(Year, AvgMeanTemp, MaxTemp, MinTemp) %>%
+  pivot_longer(cols = 2:4, names_to = "Variable", values_to = "Value")  # Convert to long format
+
+# Plot with trend lines for each variable
+ggplot(yearly_combined_data, aes(x = Year, y = Value, color = Variable)) +
+  geom_point(alpha = 0.6, size = 3) +  # Scatter plot points
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) +  # Linear trend line
+  labs(
+    title = "Yearly Trends in Temperature Variables",
+    x = "Year",
+    y = "Value",
+    color = "Variable"
+  ) +
+  theme_minimal()
+```
+
+#### 
+
+```{r}
+
+ggplot(combined_Yearly_data, aes(x = Year, y = MaxTemp)) +
+  geom_point(alpha = 0.6, size = 3) +  # Scatter plot points
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) +  # Linear trend line
+  labs(
+    title = "Yearly Trends in Max Temperature",
+    x = "Year",
+    y = "Max Temp"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(combined_Yearly_data, aes(x = Year, y = DaysAbove35)) +
+  geom_point(alpha = 0.6, size = 3) +  # Scatter plot points
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) +  
+  labs(
+    title = "Yearly Trends in No. of days above 35",
+    x = "Year",
+    y = "Days Above 35 degree"
+  ) +
+  theme_minimal()
+```
+
+#### Yearly Trends on Rainfall
+
+```{r}
+ggplot(combined_Yearly_data, aes(x = Year, y = total_rainfall)) +
+  geom_point(alpha = 0.6, size = 3) +  # Scatter plot points
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) + 
+  labs(
+    title = "Yearly Trends in Total Rainfall",
+    x = "Year",
+    y = "Total Rainfall (mm)"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(combined_Yearly_data, aes(x = Year, y = Highest30minRainfall)) +
+  geom_point(alpha = 0.6, size = 3) + 
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) + 
+  labs(
+    title = "Yearly Trends in Highest Rainfall in 30 minutes",
+    x = "Year",
+    y = "Highest 30 min Rainfall"
+  ) +
+  theme_minimal()
+```
 
 ### Distribution of of the data
 
@@ -345,6 +430,7 @@ ggplot(combined_Monthly_data, aes(x = Highest120minRainfall)) +
   labs(title = "Histogram with Normal Curve", x = "Highest 120min Rainfall", y = "Density") +
   theme_minimal()
 ```
+
 ```{r}
 ggplot(combined_Monthly_data, aes(x = Monthly_Elec_consump)) +
   geom_histogram(aes(y = ..density..), bins = 30, fill = "lightblue", color = "black", alpha = 0.7) +
@@ -365,33 +451,35 @@ ggplot(combined_Monthly_data, aes(x = denguecases)) +
   theme_minimal()
 ```
 
-
-
-
 ```{r}
 summary (combined_Monthly_data)
 ```
 
-
 ### Correlation between the various variables.
 
 ```{r}
+#| fig-height: 10
+#| fig-width: 10
 ggstatsplot::ggcorrmat(
   data = combined_Monthly_data, 
-  cor.vars = 3:12)
+  cor.vars = 3:13)
 ```
 
 ```{r}
+#| fig-height: 10
+#| fig-width: 10
 ggstatsplot::ggcorrmat(
   data = combined_Yearly_data, 
-  cor.vars = 2:12)
+  cor.vars = 2:13)
 ```
 
-
+::: callout-note
+Based on the correlation plot, it is noted for the yearly data there is no correlation between the yearly data across all variables.
+:::
 
 ### Distribution of the data
 
-### Ridgelines of variables 
+### Ridge lines of variables
 
 ```{r}
 combined_Monthly_data$Year <- as.factor(combined_Monthly_data$Year)
@@ -435,8 +523,6 @@ normality_results <- combined_Monthly_data %>%
 print(normality_results)
 ```
 
-
-
 ```{r}
 ggplot(combined_Monthly_data, 
        aes(x = MaxTemp, 
@@ -459,7 +545,6 @@ ggplot(combined_Monthly_data,
   theme_ridges()
 ```
 
-
 ```{r}
 # Perform both Shapiro-Wilk and Anderson-Darling tests for each year
 normality_results <- combined_Monthly_data %>%
@@ -477,6 +562,7 @@ normality_results <- combined_Monthly_data %>%
 print(normality_results)
 
 ```
+
 ```{r}
 ggplot(combined_Monthly_data, 
        aes(x = MinTemp, 
@@ -516,15 +602,13 @@ normality_results <- combined_Monthly_data %>%
 print(normality_results)
 ```
 
-### One-Way Anova
-
+### Analysis of Variance: Parametric and Non-Parametric Methods
 
 ```{r}
 combined_Monthly_data$total_rainfall <- as.numeric(combined_Monthly_data$total_rainfall)
 combined_Monthly_data <- combined_Monthly_data %>%
   filter(!is.na(total_rainfall))
 ```
-
 
 ```{r}
 ggbetweenstats(
@@ -559,6 +643,40 @@ ggbetweenstats(
 ggbetweenstats(
   data = combined_Monthly_data,
   x = Year, 
+  y = DaysAbove35, 
+  type = "np",  # Non-Parametric ANOVA, Parameteric - p
+  mean.ci = TRUE,  # Display mean and confidence interval
+  pairwise.comparisons = TRUE,  # Perform pairwise tests
+  pairwise.display = "significant",  # Show only significant pairs
+  p.adjust.method = "fdr",  # Adjust for multiple comparisons
+  messages = FALSE  # Suppress additional messages
+)
+
+```
+
+```{r}
+
+```
+
+```{r}
+ggbetweenstats(
+  data = combined_Monthly_data,
+  x = Year, 
+  y = AvgMeanTemp, 
+  type = "p",  # Non-Parametric ANOVA, Parameteric - p
+  mean.ci = TRUE,  # Display mean and confidence interval
+  pairwise.comparisons = TRUE,  # Perform pairwise tests
+  pairwise.display = "significant",  # Show only significant pairs
+  p.adjust.method = "fdr",  # Adjust for multiple comparisons
+  messages = FALSE  # Suppress additional messages
+)
+
+```
+
+```{r}
+ggbetweenstats(
+  data = combined_Monthly_data,
+  x = Year, 
   y = denguecases , 
   type = "Np",  # Non-Parametric ANOVA, Parameteric - p
   mean.ci = TRUE,  # Display mean and confidence interval
@@ -583,14 +701,16 @@ ggbetweenstats(
 )
 ```
 
-### Multi-Linear Regression (MLR) 
+### Multi-Linear Regression (MLR)
+
+#### Using MLR to understand the impact of climate change on health aspect
 
 ```{r}
 colnames(combined_Monthly_data)
 ```
 
 ```{r}
-model_health <- lm(denguecases ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall+ Highest60minRainfall + Highest120minRainfall , data = combined_Monthly_data)
+model_health <- lm(denguecases ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall+ Highest60minRainfall + Highest120minRainfall+DaysAbove35 , data = combined_Monthly_data)
 summary(model_health)
 
 
@@ -599,18 +719,25 @@ summary(model_health)
 ```{r}
 check_collinearity(model_health)
 ```
+
 ```{r}
 check_c_health <- check_collinearity(model_health)
 plot(check_c_health)
 ```
 
+##### Model Refinement
 
-#### Removed Highest Rainfall in 60 min data due to multicollinearity
+Highest Rainfall in 60 min data was removed due to multi-collinearity.
+
+Based on the outcome of the initial model, it shows that the increase in dengue cases could not be explained by weather parameters. The correlation plot shows that dengue cases has correlation with electricity consumption.
+
+Hence fo r model refinement, it is added to the model as a variable. The model become significant with highest 30 mins rainfall explaining the increasing trend dengue cases.
+
 ```{r}
-model_health <- lm(denguecases ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall + Highest120minRainfall , data = combined_Monthly_data)
+model_health <- lm(denguecases ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall + Highest120minRainfall + Monthly_Elec_consump + DaysAbove35 , data = combined_Monthly_data)
+
 summary(model_health)
 ```
-
 
 ```{r}
 #| fig-height: 18
@@ -618,30 +745,120 @@ summary(model_health)
 check_model(model_health)
 ```
 
+#### Using MLR to understand the impact of climate change on electricity consumption
 
 ```{r}
-model_elec <- lm(Monthly_Elec_consump ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall+ Highest60minRainfall + Highest120minRainfall , data = combined_Monthly_data)
+model_elec <- lm(Monthly_Elec_consump ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall+ Highest60minRainfall + Highest120minRainfall+DaysAbove35, data = combined_Monthly_data)
 
 summary(model_elec)
 ```
-
 
 ```{r}
 check_c_elec <- check_collinearity(model_elec)
 plot(check_c_elec)
 ```
+
 ```{r}
-model_elec <- lm(Monthly_Elec_consump ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall + Highest120minRainfall , data = combined_Monthly_data)
+model_elec <- lm(Monthly_Elec_consump ~ MaxTemp + MinTemp + AvgMeanTemp+ Highest30minRainfall + Highest120minRainfall + DaysAbove35 , data = combined_Monthly_data)
 
 summary(model_elec)
 ```
+
 ```{r}
 #| fig-height: 18
 #| fig-width: 16
 check_model(model_elec)
 ```
 
+### Conclusion and further visualization
+
+Although the MLR models may not be able to explain fully on the increase in the dengue cases and household electricity consumption over the year using the weather parameters, but the MLR models met the requirements for this exercise. The use of MLR technique is to use the weather parameters to explore if there were trends between changing weather patterns and its impact on our daily life.
+
+#### Climate Change on Health
+
+Using the outcome of the 1st MLR model on health, although the P-value is at 0.05 which close to the conventional threshold of 0.05, this indicate the model is marginally significant, and suggest that the weather parameters used as a group does not provide a strong explanation of explaining the increase in dengue cases over the recent years.
+
+However it is important to note that among the weather parameters, Average Mean Temperature for the month and the highest 30 min rainfall are statically significant in the first model and only the highest rainfall 30 minutes is still statically significant for explaning the dengue trend after adding in the monthly total electricity consumption.
+
+```{r}
+ggplot(combined_Monthly_data, aes(x = AvgMeanTemp, y = denguecases)) +
+  geom_point(color = "blue", alpha = 0.6, size = 3) +  # Scatter plot with points
+  geom_smooth(method = "lm", color = "red", linetype = "dashed") +  # Linear trend line
+  labs(
+    title = "Relationship Between Dengue Cases \nand Average Mean Temperature ",
+    x = "Average Daily Mean Temperature (Monthly)",
+    y = "Dengue Cases"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(combined_Monthly_data, aes(x = Highest30minRainfall, y = denguecases)) +
+  geom_point(color = "blue", alpha = 0.6, size = 3) +  # Scatter plot with points
+  geom_smooth(method = "lm", color = "red", linetype = "dashed") +  # Linear trend line
+  labs(
+    title = "Relationship Between Dengue Cases \nand Highest 30 min Rainfall ",
+    x = "Highest 30 min Rainfall",
+    y = "Dengue Cases"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(combined_Monthly_data, aes(x = Monthly_Elec_consump, y = denguecases)) +
+  geom_point(color = "blue", alpha = 0.6, size = 3) +  # Scatter plot with points
+  geom_smooth(method = "lm", color = "red", linetype = "dashed") +  # Linear trend line
+  labs(
+    title = "Relationship Between Dengue Cases \nand Electricity Consumption",
+    x = "Monthly Household Electricity Consumption",
+    y = "Dengue Cases"
+  ) +
+  theme_minimal()
+```
+
+**Climate Change on Electricity Consumption**
+
+Based on the MLR regression models built for the Household Electricity Consumption, the statistically significant variables are Average Mean Temperature, Highest 120 min Rainfall and Minimum Temperature. Hence the following visualization is used to show their relationship.
+
+```{r}
+ggplot(combined_Monthly_data, aes(x = AvgMeanTemp, y = Monthly_Elec_consump)) +
+  geom_point(color = "blue", alpha = 0.6, size = 3) +  # Scatter plot with points
+  geom_smooth(method = "lm", color = "red", linetype = "dashed") +  # Linear trend line
+  labs(
+    title = "Relationship Between Electricity Consumption \nand Average Mean Temperature ",
+    x = "Average Daily Mean Temperature (Monthly)",
+    y = "Monthly Household Electricity Consumption"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+ggplot(combined_Monthly_data, aes(x = Highest120minRainfall, y = Monthly_Elec_consump)) +
+  geom_point(color = "blue", alpha = 0.6, size = 3) +  # Scatter plot with points
+  geom_smooth(method = "lm", color = "red", linetype = "dashed") +  # Linear trend line
+  labs(
+    title = "Relationship Between Electricity Consumption \nand Highest 120 min Rainfall",
+    x = "Highest 120 min Rainfall",
+    y = "Monthly Household Electricity Consumption"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(combined_Monthly_data, aes(x = MinTemp, y = Monthly_Elec_consump)) +
+  geom_point(color = "blue", alpha = 0.6, size = 3) +  # Scatter plot with points
+  geom_smooth(method = "lm", color = "red", linetype = "dashed") +  # Linear trend line
+  labs(
+    title = "Relationship Between Electricity Consumption \nand Minimum Temperature",
+    x = "Minimum Temperature",
+    y = "Monthly Household Electricity Consumption"
+  ) +
+  theme_minimal()
+```
 
 ### Disclaimer
 
-This take home exercise was done with reference to methods in Prof Kam's e text book https://r4va.netlify.app/ , materials on R available online and the use of Microsoft co-pilot to troubleshoot syntax errors and streamline codes.
+This take home exercise was done with reference to methods in Prof Kam's e textbook https://r4va.netlify.app/ , materials on R available online and the use of Microsoft co-pilot to troubleshoot syntax errors and streamline codes.
