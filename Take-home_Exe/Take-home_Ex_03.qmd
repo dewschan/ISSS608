@@ -370,6 +370,30 @@ ggplot(combined_Yearly_data, aes(x = Year, y = Highest30minRainfall)) +
   theme_minimal()
 ```
 
+```{r}
+ggplot(combined_Yearly_data, aes(x = Year, y = dengueincidencerate)) +
+  geom_point(alpha = 0.6, size = 3) + 
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) + 
+  labs(
+    title = "Yearly Trends in Dengue Incidence Rate",
+    x = "Year",
+    y = " Dengue Incidence Rate"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+ggplot(combined_Yearly_data, aes(x = Year, y = Yearly_Elec_consump)) +
+  geom_point(alpha = 0.6, size = 3) + 
+  geom_smooth(method = "lm", linetype = "dashed", size = 1) + 
+  labs(
+    title = "Yearly Trends in Electricity Consumption",
+    x = "Year",
+    y = " Total Yearly dElectricity Consumption"
+  ) +
+  theme_minimal()
+```
+
 ### Distribution of of the data
 
 #### Histograms
@@ -611,6 +635,8 @@ combined_Monthly_data <- combined_Monthly_data %>%
 ```
 
 ```{r}
+#| fig-height: 12
+#| fig-width: 10
 ggbetweenstats(
   data = combined_Monthly_data,
   x = Year, 
@@ -623,6 +649,36 @@ ggbetweenstats(
   messages = FALSE  # Suppress additional messages
 )
 
+```
+
+```{r}
+#| fig-height: 12
+#| fig-width: 10
+ggbetweenstats(
+  data = combined_Monthly_data,
+  x = Year, 
+  y = total_rainfall, 
+  type = "np",  # Non-Parametric ANOVA, Parameteric - p
+  mean.ci = TRUE,  # Display mean and confidence interval
+  pairwise.comparisons = TRUE,  # Perform pairwise tests
+  pairwise.display = "significant",  # Show only significant pairs
+  p.adjust.method = "fdr",  # Adjust for multiple comparisons
+  messages = FALSE  # Suppress additional messages
+)
+
+```
+
+```{r}
+ggbetweenstats(
+  data = combined_Monthly_data,
+  x = Year, 
+  y = total_rainfall, 
+  type = "np",  # Non-Parametric ANOVA, Parameteric - p
+  mean.ci = TRUE,  # Display mean and confidence interval
+  pairwise.comparisons = FALSE, # Perform pairwise tests
+  pairwise.display = "none",
+  messages = FALSE  # Suppress additional messages
+)
 ```
 
 ```{r}
@@ -685,6 +741,20 @@ ggbetweenstats(
   p.adjust.method = "fdr",  # Adjust for multiple comparisons
   messages = FALSE  # Suppress additional messages
 )
+
+```
+
+```{r}
+ggbetweenstats(
+  data = combined_Monthly_data,
+  x = Year, 
+  y = denguecases , 
+  type = "Np",  # Non-Parametric ANOVA, Parameteric - p
+  mean.ci = TRUE,  # Display mean and confidence interval
+  pairwise.comparisons = FALSE, # Perform pairwise tests
+  pairwise.display = "none",
+  messages = FALSE  # Suppress additional messages
+)
 ```
 
 ```{r}
@@ -697,6 +767,19 @@ ggbetweenstats(
   pairwise.comparisons = TRUE,  # Perform pairwise tests
   pairwise.display = "significant",  # Show only significant pairs
   p.adjust.method = "fdr",  # Adjust for multiple comparisons
+  messages = FALSE  # Suppress additional messages
+)
+```
+
+```{r}
+ggbetweenstats(
+  data = combined_Monthly_data,
+  x = Year, 
+  y = Monthly_Elec_consump , 
+  type = "Np",  # Non-Parametric ANOVA, Parameteric - p
+  mean.ci = TRUE,  # Display mean and confidence interval
+  pairwise.comparisons = FALSE, # Perform pairwise tests
+  pairwise.display = "none",
   messages = FALSE  # Suppress additional messages
 )
 ```
@@ -778,7 +861,7 @@ Although the MLR models may not be able to explain fully on the increase in the 
 
 Using the outcome of the 1st MLR model on health, although the P-value is at 0.05 which close to the conventional threshold of 0.05, this indicate the model is marginally significant, and suggest that the weather parameters used as a group does not provide a strong explanation of explaining the increase in dengue cases over the recent years.
 
-However it is important to note that among the weather parameters, Average Mean Temperature for the month and the highest 30 min rainfall are statically significant in the first model and only the highest rainfall 30 minutes is still statically significant for explaning the dengue trend after adding in the monthly total electricity consumption.
+However it is important to note that among the weather parameters, Average Mean Temperature for the month and the highest 30 min rainfall are statically significant in the first model and only the highest rainfall 30 minutes is still statically significant for explaining the dengue trend after adding in the monthly total electricity consumption.
 
 ```{r}
 ggplot(combined_Monthly_data, aes(x = AvgMeanTemp, y = denguecases)) +
@@ -820,7 +903,7 @@ ggplot(combined_Monthly_data, aes(x = Monthly_Elec_consump, y = denguecases)) +
 
 **Climate Change on Electricity Consumption**
 
-Based on the MLR regression models built for the Household Electricity Consumption, the statistically significant variables are Average Mean Temperature, Highest 120 min Rainfall and Minimum Temperature. Hence the following visualization is used to show their relationship.
+Based on the MLR regression models built for the Household Electricity Consumption, the statistically significant variables are Average Mean Temperature, Highest 120 min Rainfall and Minimum Temperature. Hence the following visualization are used to show their relationship.
 
 ```{r}
 ggplot(combined_Monthly_data, aes(x = AvgMeanTemp, y = Monthly_Elec_consump)) +
